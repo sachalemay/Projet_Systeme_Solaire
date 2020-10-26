@@ -27,12 +27,9 @@ struct meteorite {
 };
 
 struct forceCaract{
-	double intensitee;
-	double angle;
-	double direction_parrallele_sun;
-	double direction_perpendiculaire_sun;
 	double direction_x;
 	double direction_y;
+	double intensitee;
 };
 
 void avancementParametrisation ( int time, struct donneePlanet * planet){
@@ -41,13 +38,34 @@ void avancementParametrisation ( int time, struct donneePlanet * planet){
 	planet->y_cartesien=planet->demiPetitAxe*sin(time*2*M_PI/planet->fullOrbitTime);
 }
 
+void GlobalPlanetAvancement (int time, struct donneePlanet * planets, int lenght){
+	for (int i=0; i<lenght; i++) avancementParametrisation(time,&planets[i]);
+}
+
 void gravitationalForce (double gravitationalConstant, struct donneePlanet * planet, struct meteorite * meteor, struct forceCaract * force){
 	meteor->distancePlanet = sqrt(pow(planet->x_cartesien - meteor->x_cartesien,2)+pow(planet->y_cartesien - meteor->y_cartesien,2));
 	double intensitee = gravitationalConstant * planet->masse * meteor->masse / pow(meteor->distancePlanet,2);
-	double angle = acos( (pow(meteor->distancePlanet,2) + pow (meteor->distanceSoleil,2) - pow(planet->distanceSoleil,2)) / (2* meteor->distancePlanet * meteor->distanceSoleil));
-	force->direction_parrallele_sun += intensitee*cos(angle);
-	force->direction_perpendiculaire_sun += intensitee*sin(angle);
-	//l'angle est toujours positif il faut qu'il puisse être negatif (regarder mon dessin)
+	force->intensitee+=intensitee;
+	if ( planet->y_cartesien == meteor->y_cartesien ) {
+		if ( planet->x_cartesien > meteor->x_cartesien) force->direction_x += intensitee;
+		else force-> direction_x -= intensitee;
+	}
+	else{
+		double angle = atan ( (planet->x_cartesien - meteor->x_cartesien) / (planet->y_cartesien - meteor->y_cartesien) );
+		if (planet->y_cartesien < meteor -> y_cartesien) angle = -(M_PI-angle);
+		force->direction_y += intensitee*cos(angle);
+		force->direction_x += intensitee*sin(angle);
+	}
+}
+
+struct forceCaract AdditionGravitationalForce (double gravitationalConstant, struct donneePlanet * planets,int lenght, struct meteorite * meteor){
+	struct forceCaract forceOnMeteor = {0,0,0};
+	//printf("ici:%f",planets[1].x_cartesien);
+	for (int i=0; i<lenght; i++){
+		gravitationalForce(gravitationalConstant,&planets[i],meteor,&forceOnMeteor);
+		printf("X:%f\nY:%f\n%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee);
+	}
+	return forceOnMeteor;
 }
 
 int main(int argc, char * argv[]) {
@@ -58,38 +76,33 @@ int main(int argc, char * argv[]) {
 	struct donneePlanet mercure;
 	mercure.planetName= "Mercure";
 	mercure.demiGrandAxe= 69816900;
-	mercure.demiPetitAxe= 46001200;
+	mercure.demiPetitAxe= 46000000;
 	mercure.fullOrbitTime=88;
 	mercure.masse=3.3*pow(10,23);
 	
-	/*struct donneePlanet terre;
+	struct donneePlanet terre;
 	terre.planetName= "Terre";
 	terre.demiGrandAxe= 152100000;
 	terre.demiPetitAxe= 147095000;
-	terre.fullOrbitTime=352;*/
+	terre.fullOrbitTime=352;
+	terre.masse=5.97*pow(10,24);
+	
+	struct donneePlanet planets[2];
+	planets[0]=mercure;
+	planets[1]=terre;
 	
 	struct meteorite meteor;
-	meteor.x_cartesien= 15000;
-	meteor.y_cartesien= 47000000;
-	meteor.distanceSoleil=47000002;
+	meteor.x_cartesien= 16800000;
+	meteor.y_cartesien= 70000000;
+	meteor.distanceSoleil=sqrt(pow(meteor.x_cartesien,2)+pow(meteor.y_cartesien,2));
 	meteor.masse= 8*pow(10,10);
 	
-	struct forceCaract force1;
-	force1.direction_parrallele_sun=0;
-	force1.direction_perpendiculaire_sun=0;
+	GlobalPlanetAvancement(time, planets, 2);
+	printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
+	printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[1].planetName,planets[1].demiGrandAxe,planets[1].demiPetitAxe,planets[1].distanceSoleil,planets[1].x_cartesien,planets[1].y_cartesien);
 	
-	//struct donneePlanet soleil;
-	//soleil.masse=1.989*pow(10,30);
-	//soleil.distance=0;
-	
-	avancementParametrisation(time,&mercure);
-	//avancementParametrisation(time,&terre);
-	
-	printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",mercure.planetName,mercure.demiGrandAxe,mercure.demiPetitAxe,mercure.distanceSoleil,mercure.x_cartesien,mercure.y_cartesien);
-	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",terre.planetName,terre.demiGrandAxe,terre.demiPetitAxe,terre.distanceSoleil,terre.x_cartesien,terre.y_cartesien);
-	
-	gravitationalForce (gravitationalConstant, &mercure, &meteor, &force1);
-	printf("Soleil:%f\nPerpen:%f",force1.direction_parrallele_sun,force1.direction_perpendiculaire_sun);
+	struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets,2, &meteor);
+	printf("X:%f\nY:%f\n%f\n%f",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee,sqrt(pow(forceOnMeteor.direction_x,2)+pow(forceOnMeteor.direction_y,2)));
 	
 	return 0;
 } 
