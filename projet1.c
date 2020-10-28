@@ -34,8 +34,8 @@ struct forceCaract{
 
 void avancementParametrisation ( int time, struct donneePlanet * planet){
 	planet->distanceSoleil = planet->demiPetitAxe * planet->demiGrandAxe / sqrt( pow(planet->demiPetitAxe*cos(time*2*M_PI/planet->fullOrbitTime),2) + pow(planet->demiGrandAxe*sin(time*2*M_PI/planet->fullOrbitTime),2));
-	planet->x_cartesien=planet->demiGrandAxe*cos(time*2*M_PI/planet->fullOrbitTime);
-	planet->y_cartesien=planet->demiPetitAxe*sin(time*2*M_PI/planet->fullOrbitTime);
+	planet->x_cartesien = planet->demiGrandAxe * cos(time*2*M_PI / planet->fullOrbitTime);
+	planet->y_cartesien = planet->demiPetitAxe * sin(time*2*M_PI / planet->fullOrbitTime);
 }
 
 void GlobalPlanetAvancement (int time, struct donneePlanet * planets, int lenght){
@@ -60,10 +60,9 @@ void gravitationalForce (double gravitationalConstant, struct donneePlanet * pla
 
 struct forceCaract AdditionGravitationalForce (double gravitationalConstant, struct donneePlanet * planets,int lenght, struct meteorite * meteor){
 	struct forceCaract forceOnMeteor = {0,0,0};
-	//printf("ici:%f",planets[1].x_cartesien);
 	for (int i=0; i<lenght; i++){
 		gravitationalForce(gravitationalConstant,&planets[i],meteor,&forceOnMeteor);
-		printf("X:%f\nY:%f\n%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee);
+		//printf("X:%f\nY:%f\n%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee);
 	}
 	return forceOnMeteor;
 }
@@ -76,6 +75,15 @@ void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceC
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
 }
 
+void repetitionDeFonctions (int reps, int timeInterval, double gravitationalConstant, struct donneePlanet * planets,int lenght, struct meteorite * meteor){
+	for (int i=0; i<reps; i++){
+		GlobalPlanetAvancement(timeInterval, planets, lenght);
+		struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets, lenght, meteor);
+		applicationForceMeteor(timeInterval, meteor, &forceOnMeteor);
+		printf("New Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
+		printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
+	}
+}
 
 int main(int argc, char * argv[]) {
 	
@@ -108,15 +116,19 @@ int main(int argc, char * argv[]) {
 	meteor.distanceSoleil=sqrt(pow(meteor.x_cartesien,2)+pow(meteor.y_cartesien,2));
 	meteor.masse= 8*pow(10,10);
 	
-	GlobalPlanetAvancement(time, planets, 2);
+	//GlobalPlanetAvancement(time, planets, 2);
 	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
 	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[1].planetName,planets[1].demiGrandAxe,planets[1].demiPetitAxe,planets[1].distanceSoleil,planets[1].x_cartesien,planets[1].y_cartesien);
 	
-	struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets,2, &meteor);
+	/*struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets,2, &meteor);
 	printf("X:%f\nY:%f\n%f\n%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee,sqrt(pow(forceOnMeteor.direction_x,2)+pow(forceOnMeteor.direction_y,2)));
 	
 	applicationForceMeteor(time,&meteor,&forceOnMeteor);
 	printf("New: (%f , %f)\nOld: (152100000 , 0)\n\n", meteor.x_cartesien,meteor.y_cartesien);
-	printf("New Speed: (%f,%f)\nOld: (0,0)\n\n",meteor.initialspeed_x,meteor.initialspeed_y);
+	printf("New Speed: (%f,%f)\nOld: (0,0)\n\n",meteor.initialspeed_x,meteor.initialspeed_y);*/
+	
+	printf("first location: (%f , %f)\nfirst speed: (%f , %f)\n\n",meteor.x_cartesien,meteor.y_cartesien,meteor.initialspeed_x,meteor.initialspeed_y);
+	repetitionDeFonctions( 150,time,gravitationalConstant,planets,2,&meteor);
+	
 	return 0;
 } 
