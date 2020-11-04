@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 
 struct donneePlanet {
 	char * planetName;			//"name"
@@ -13,6 +14,7 @@ struct donneePlanet {
 	double distanceSoleil;
 	double x_cartesien;
 	double y_cartesien;
+	double distanceAsteroide;
 };
 
 struct meteorite {
@@ -24,6 +26,8 @@ struct meteorite {
 	double radius;
 	double x_cartesien;
 	double y_cartesien;
+	_Bool collision;
+	char * collisionWith;
 };
 
 struct forceCaract{
@@ -44,6 +48,7 @@ void GlobalPlanetAvancement (int time, struct donneePlanet * planets, int lenght
 
 void gravitationalForce (double gravitationalConstant, struct donneePlanet * planet, struct meteorite * meteor, struct forceCaract * force){
 	meteor->distancePlanet = sqrt(pow(planet->x_cartesien - meteor->x_cartesien,2)+pow(planet->y_cartesien - meteor->y_cartesien,2));
+	planet->distanceAsteroide = meteor->distancePlanet;
 	double intensitee = gravitationalConstant * planet->masse * meteor->masse / pow(meteor->distancePlanet,2);
 	force->intensitee+=intensitee;
 	if ( planet->y_cartesien == meteor->y_cartesien ) {
@@ -75,11 +80,22 @@ void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceC
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
 }
 
+void conditionCollision (struct donneePlanet * planets,int lenght, struct meteorite * meteor){
+	for (int i=0; i<lenght; i++){
+		if (planets[i].radius + meteor->radius >= planets[i].distanceAsteroide){
+			meteor->collision = 1;
+			meteor->collisionWith = planets[i].planetName;
+		}
+	}
+}
+
 void repetitionDeFonctions (int reps, int timeInterval, double gravitationalConstant, struct donneePlanet * planets,int lenght, struct meteorite * meteor){
-	for (int i=0; i<reps; i++){
+	while ( 0 == meteor->collision){
+	//for (int i=0; i<reps; i++){
 		GlobalPlanetAvancement(timeInterval, planets, lenght);
 		struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets, lenght, meteor);
 		applicationForceMeteor(timeInterval, meteor, &forceOnMeteor);
+		conditionCollision (planets, lenght, meteor);
 		printf("New Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
 		printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
 	}
@@ -87,7 +103,7 @@ void repetitionDeFonctions (int reps, int timeInterval, double gravitationalCons
 
 int main(int argc, char * argv[]) {
 	
-	int time= 352;
+	int time= 1;
 	double gravitationalConstant = 6.6743*pow(10,-20);
 	
 	struct donneePlanet mercure;
@@ -96,6 +112,7 @@ int main(int argc, char * argv[]) {
 	mercure.demiPetitAxe= 46000000;
 	mercure.fullOrbitTime=88;
 	mercure.masse=3.3*pow(10,23);
+	mercure.radius=24400.53000;
 	
 	struct donneePlanet terre;
 	terre.planetName= "Terre";
@@ -103,18 +120,20 @@ int main(int argc, char * argv[]) {
 	terre.demiPetitAxe= 147095000;
 	terre.fullOrbitTime=352;
 	terre.masse=5.97*pow(10,24);
+	terre.radius=637800.13660;
 	
 	struct donneePlanet planets[2];
 	planets[0]=mercure;
 	planets[1]=terre;
 	
 	struct meteorite meteor;
-	meteor.x_cartesien= 0;
-	meteor.y_cartesien= 0;
+	meteor.x_cartesien= 15439474;
+	meteor.y_cartesien= -187379638;
 	meteor.initialspeed_x= 0;
 	meteor.initialspeed_y=0;
 	meteor.distanceSoleil=sqrt(pow(meteor.x_cartesien,2)+pow(meteor.y_cartesien,2));
-	meteor.masse= 8*pow(10,10);
+	meteor.masse= 8*pow(10,15);
+	meteor.radius= 3500;
 	
 	//GlobalPlanetAvancement(time, planets, 2);
 	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
@@ -127,8 +146,10 @@ int main(int argc, char * argv[]) {
 	printf("New: (%f , %f)\nOld: (152100000 , 0)\n\n", meteor.x_cartesien,meteor.y_cartesien);
 	printf("New Speed: (%f,%f)\nOld: (0,0)\n\n",meteor.initialspeed_x,meteor.initialspeed_y);*/
 	
+	meteor.collision= 0;
 	printf("first location: (%f , %f)\nfirst speed: (%f , %f)\n\n",meteor.x_cartesien,meteor.y_cartesien,meteor.initialspeed_x,meteor.initialspeed_y);
-	repetitionDeFonctions( 150,time,gravitationalConstant,planets,2,&meteor);
+	repetitionDeFonctions( 8000,time,gravitationalConstant,planets,2,&meteor);
+	printf("M:%d avec %s",meteor.collision,meteor.collisionWith);
 	
 	return 0;
 } 
