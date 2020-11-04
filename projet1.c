@@ -13,7 +13,9 @@ struct donneePlanet {
 	double rotationTime;			//si on est chaud
 	double distanceSoleil;
 	double x_cartesien;
+	double previous_x_cartesien;
 	double y_cartesien;
+	double previous_y_cartesien;
 	double distanceAsteroide;
 	double dephasage;
 };
@@ -40,6 +42,8 @@ struct forceCaract{
 };
 
 void avancementParametrisation ( int time, struct donneePlanet * planet){
+	planet->previous_x_cartesien = planet->x_cartesien;
+	planet->previous_y_cartesien = planet->y_cartesien;
 	planet->distanceSoleil = planet->demiPetitAxe * planet->demiGrandAxe / sqrt( pow(planet->demiPetitAxe*cos(time*2*M_PI/planet->fullOrbitTime+planet->dephasage),2) + pow(planet->demiGrandAxe*sin(time*2*M_PI/planet->fullOrbitTime+planet->dephasage),2));
 	planet->x_cartesien= planet->demiGrandAxe * cos(time*2*M_PI / planet->fullOrbitTime + planet->dephasage);
 	planet->y_cartesien= planet->demiPetitAxe * sin(time*2*M_PI / planet->fullOrbitTime + planet->dephasage);
