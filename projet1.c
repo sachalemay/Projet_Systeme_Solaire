@@ -91,7 +91,7 @@ void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceC
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
 }
 
-void conditionCollision (struct donneePlanet * planets, int length, struct meteorite * meteor){
+void conditionCollision (int timeInterval, struct donneePlanet * planets, int length, struct meteorite * meteor){
 	for (int i=0; i<length; i++){
 		
 		if (planets[i].radius + meteor->radius >= planets[i].distanceAsteroide){
@@ -100,9 +100,10 @@ void conditionCollision (struct donneePlanet * planets, int length, struct meteo
 		}
 		
 		else{
-			double coeff_directeur = (meteor->y_cartesien - meteor->previous_y_cartesien) / (meteor->x_cartesien - meteor->previous_y_cartesien);
-			double coeff_normal = -1 / coeff_directeur;
-			double b_directeur = meteor->y_cartesien - coeff_directeur * meteor->x_cartesien;
+			double coeff_directeur_as = (meteor->y_cartesien - meteor->previous_y_cartesien) / (meteor->x_cartesien - meteor->previous_y_cartesien);
+			double b_directeur_as = meteor->y_cartesien - coeff_directeur_as * meteor->x_cartesien + meteor->radius;
+			
+			/*double coeff_normal = -1 / coeff_directeur;
 			double b_normal = planets[i].y_cartesien - coeff_normal * planets[i].x_cartesien;
 			double x_found = (b_normal - b_directeur) / (coeff_directeur - coeff_normal);
 			printf("(%f , %f , %f)\n",meteor->previous_x_cartesien,x_found, meteor->x_cartesien);
@@ -110,7 +111,19 @@ void conditionCollision (struct donneePlanet * planets, int length, struct meteo
 			if (x_found < meteor->x_cartesien && x_found > meteor->previous_x_cartesien){
 				meteor->collision = 1;
 				meteor->collisionWith = planets[i].planetName;
-			}
+			}*/
+			
+			double coeff_directeur_pl = (planets[i].y_cartesien - planets[i].previous_y_cartesien) / (planets[i].x_cartesien - planets[i].previous_x_cartesien);
+			double b_directeur_pl = planets[i].y_cartesien - coeff_directeur_pl * planets[i].x_cartesien - planets[i].radius;
+			double x_found = (b_directeur_pl - b_directeur_as) / (coeffs_directeur_as - coeff_directeur_pl);
+			double y_found = coeff_directeur_as * x_found + b_directeur_as;
+			double dist = sqrt( pow( x_found - meteor->previous_x_cartesien,2) + pow(y_found - meteor->previous_y_cartesien,2) );
+			double dist_tot = sqrt( pow(meteor->x_cartesien - meteor->previous_x_cartesien,2) + pow(meteor->y_cartesien - meteor->previous_y_cartesien,2) );
+			double dist_tot_pl = sqrt(pow(planets[i].x_cartesien - planets[i].previous_x_cartesien,2) + pow(planets[i].y_cartesien - planets[i].previous_y_cartesien,2));
+			double speed_as = dist_tot / timeInterval;
+			double speed_pl = dist_tot_pl / timeInterval;
+			double time_found = dist / speed_as;
+			
 		}
 	}
 }
@@ -122,7 +135,7 @@ void repetitionDeFonctions (int reps, int timeInterval, double gravitationalCons
 		GlobalPlanetAvancement(time, planets, lenght);
 		struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets, lenght, meteor);
 		applicationForceMeteor(timeInterval, meteor, &forceOnMeteor);
-		conditionCollision (planets, lenght, meteor);
+		conditionCollision (timeInterval,planets, lenght, meteor);
 		printf("New Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
 		printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
 		time+=timeInterval;
