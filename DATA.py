@@ -14,9 +14,7 @@ list_labels = ["id","aphelion","perihelion","semimajorAxis", "mass","equaRadius"
 
 with open ('bodies.json') as f:       
     celestarobj = json.load(f)
-    
-with open ('bodies-2.csv', "a", newline = "") as f:  
-    
+with open ('bodies-3.csv', "a", newline = "") as f:  
     writer_csv = csv.writer(f)    
     writer_csv.writerow(list_labels)
     for body in celestarobj["bodies"]: 
@@ -42,7 +40,7 @@ with open ('bodies-2.csv', "a", newline = "") as f:
         body.pop('sideralRotation')
     
     
-        if body["isPlanet"] == True: 
+        if body["isPlanet"] == True or body["id"] == "soleil": 
             list_body_data = [body[label] for label in list_labels]
             writer_csv.writerow(list_body_data)
         
