@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
+#include <string.h>
 
 struct donneePlanet {
-	char * planetName;			//"name"
+	char planetName[100];			//"name"
 	double demiGrandAxe; 		//ou "aphelion"
 	double demiPetitAxe; 		//ou "perihelion"
 	double masse; 					// "massValue" + "massExponent"
@@ -50,7 +51,7 @@ void avancementParametrisation ( int time, struct donneePlanet * planet){
 }
 
 void GlobalPlanetAvancement (int time, struct donneePlanet * planets, int lenght){
-	for (int i=0; i<lenght; i++){
+	for (int i=1; i<lenght; i++){
 		avancementParametrisation(time,&planets[i]);
 	}
 }
@@ -74,7 +75,7 @@ void gravitationalForce (double gravitationalConstant, struct donneePlanet * pla
 
 struct forceCaract AdditionGravitationalForce (double gravitationalConstant, struct donneePlanet * planets,int lenght, struct meteorite * meteor){
 	struct forceCaract forceOnMeteor = {0,0,0};
-	for (int i=0; i<lenght; i++){
+	for (int i=1; i<lenght; i++){
 		gravitationalForce(gravitationalConstant,&planets[i],meteor,&forceOnMeteor);
 		//printf("X:%f\nY:%f\n%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee);
 	}
@@ -92,7 +93,7 @@ void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceC
 }
 
 void conditionCollision (int timeInterval, struct donneePlanet * planets, int length, struct meteorite * meteor){
-	for (int i=0; i<length; i++){
+	for (int i=1; i<length; i++){
 		
 		if (planets[i].radius + meteor->radius >= planets[i].distanceAsteroide){
 			meteor->collision = 1;
@@ -103,17 +104,17 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 			double coeff_directeur_as = (meteor->y_cartesien - meteor->previous_y_cartesien) / (meteor->x_cartesien - meteor->previous_y_cartesien);
 			double b_directeur_as = meteor->y_cartesien - coeff_directeur_as * meteor->x_cartesien + meteor->radius;
 			
-			/*double coeff_normal = -1 / coeff_directeur;
+			double coeff_normal = -1 / coeff_directeur_as;
 			double b_normal = planets[i].y_cartesien - coeff_normal * planets[i].x_cartesien;
-			double x_found = (b_normal - b_directeur) / (coeff_directeur - coeff_normal);
+			double x_found = (b_normal - b_directeur_as) / (coeff_directeur_as - coeff_normal);
 			printf("(%f , %f , %f)\n",meteor->previous_x_cartesien,x_found, meteor->x_cartesien);
 			
 			if (x_found < meteor->x_cartesien && x_found > meteor->previous_x_cartesien){
 				meteor->collision = 1;
 				meteor->collisionWith = planets[i].planetName;
-			}*/
+			}
 			
-			double coeff_directeur_pl = (planets[i].y_cartesien - planets[i].previous_y_cartesien) / (planets[i].x_cartesien - planets[i].previous_x_cartesien);
+			/*double coeff_directeur_pl = (planets[i].y_cartesien - planets[i].previous_y_cartesien) / (planets[i].x_cartesien - planets[i].previous_x_cartesien);
 			double b_directeur_pl = planets[i].y_cartesien - coeff_directeur_pl * planets[i].x_cartesien - planets[i].radius;
 			double x_found = (b_directeur_pl - b_directeur_as) / (coeffs_directeur_as - coeff_directeur_pl);
 			double y_found = coeff_directeur_as * x_found + b_directeur_as;
@@ -122,7 +123,7 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 			double dist_tot_pl = sqrt(pow(planets[i].x_cartesien - planets[i].previous_x_cartesien,2) + pow(planets[i].y_cartesien - planets[i].previous_y_cartesien,2));
 			double speed_as = dist_tot / timeInterval;
 			double speed_pl = dist_tot_pl / timeInterval;
-			double time_found = dist / speed_as;
+			double time_found = dist / speed_as;*/
 			
 		}
 	}
@@ -143,42 +144,66 @@ void repetitionDeFonctions (int reps, int timeInterval, double gravitationalCons
 	}
 	printf("time=%d",time);
 }
+int lireLigne(char * ligne, struct donneePlanet * planets) {
+	char * virgule1 = strchr(ligne, ',');
+	if (virgule1 == NULL) return 0;
+	char * virgule2 = strchr(virgule1 + 1, ',');
+	if (virgule2 == NULL) return 0;
+	char * virgule3 = strchr(virgule2 + 1, ',');
+	if (virgule3 == NULL) return 0;
+	char * virgule4 = strchr(virgule3 + 1, ',');
+	if (virgule4 == NULL) return 0;
+	char * virgule5 = strchr(virgule4 + 1, ',');
+	if (virgule5 == NULL) return 0;
+	char * virgule6 = strchr(virgule5 + 1, ',');
+	if (virgule6 == NULL) return 0;
+	char * virgule7 = strchr(virgule6 + 1, ',');
+	if (virgule7 == NULL) return 0;
+	int len = virgule1 - ligne;
+	strncpy(planets->planetName, ligne, len);
+	planets->planetName[len]='\0';;
+	planets->demiGrandAxe = atof(virgule1 + 1);
+	planets->demiPetitAxe = atof(virgule2 + 1);
+	planets->demiGrandAxe = atof(virgule3 + 1);
+	planets->masse = atof(virgule4 + 1);
+	planets->radius = atof(virgule5 + 1);
+	planets->fullOrbitTime = atof(virgule6 + 1);
+	planets->gravity = atof(virgule7 + 1);
+	
+    return 1;
+   }
+  
+int lireFichier(char * nomFichier, struct donneePlanet * tableauARemplir, int longueur) {
+    FILE * file = fopen(nomFichier, "r");
+    if (file == NULL) return -1;
+
+    int ligne = 0;
+    char buffer[100];
+    while (fgets(buffer, 100, file) != NULL) {
+        if (ligne >= longueur) return ligne;
+        int ok = lireLigne(buffer, tableauARemplir + ligne);
+        if (ok) ligne = ligne + 1;
+    }
+    fclose(file);
+    return ligne;
+}
 
 int main(int argc, char * argv[]) {
 	
-	int time= 10;
+	int time= 50;
 	double gravitationalConstant = 6.6743*pow(10,-20);
 	
-	struct donneePlanet mercure;
-	mercure.planetName= "Mercure";
-	mercure.demiGrandAxe= 69816900;
-	mercure.demiPetitAxe= 46000000;
-	mercure.fullOrbitTime=88;
-	mercure.masse=3.3*pow(10,23);
-	mercure.radius=244.53000;
-	mercure.dephasage = 0;
-	
-	struct donneePlanet terre;
-	terre.planetName= "Terre";
-	terre.demiGrandAxe= 152100000;
-	terre.demiPetitAxe= 147095000;
-	terre.fullOrbitTime=352;
-	terre.masse=5.97*pow(10,24);
-	terre.radius=6378.13660;
-	terre.dephasage = M_PI;
-	
-	struct donneePlanet planets[2];
-	planets[0]=mercure;
-	planets[1]=terre;
-	
 	struct meteorite meteor;
-	meteor.x_cartesien= 0;
-	meteor.y_cartesien= 0;
+	meteor.x_cartesien= -570000000;
+	meteor.y_cartesien= 8400000000;
 	meteor.initialspeed_x= 0;
 	meteor.initialspeed_y= 0;
 	meteor.distanceSoleil=sqrt(pow(meteor.x_cartesien,2)+pow(meteor.y_cartesien,2));
 	meteor.masse= 8*pow(10,15);
 	meteor.radius= 350;
+	
+	struct donneePlanet planets[14];
+	int lenght = lireFichier("bodies-2.csv", planets, 14);
 	
 	//GlobalPlanetAvancement(time, planets, 2);
 	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
@@ -193,7 +218,7 @@ int main(int argc, char * argv[]) {
 	
 	meteor.collision= 0;
 	printf("first location: (%f , %f)\nfirst speed: (%f , %f)\n\n",meteor.x_cartesien,meteor.y_cartesien,meteor.initialspeed_x,meteor.initialspeed_y);
-	repetitionDeFonctions( 8000,time,gravitationalConstant,planets,2,&meteor);
+	repetitionDeFonctions( 8000,time,gravitationalConstant,planets,lenght,&meteor);
 	printf("M:%d avec %s",meteor.collision,meteor.collisionWith);
 	
 	return 0;
