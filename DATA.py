@@ -9,21 +9,20 @@ Created on Wed Oct 21 17:02:56 2020
 import json 
 import csv 
    
-list = ["list_name","list_aphelion","list_perihelion","list_semimajorAxis", "list_mass","list_equaRadius", "list_sideralOrbit", "list_gravity"]
-list_labels = ["name","aphelion","perihelion","semimajorAxis", "mass","equaRadius", "sideralOrbit", "gravity"]
+list = ["list_id","list_aphelion","list_perihelion","list_semimajorAxis", "list_mass","list_equaRadius", "list_sideralOrbit", "list_gravity"]
+list_labels = ["id","aphelion","perihelion","semimajorAxis", "mass","equaRadius", "sideralOrbit", "gravity"]
 
 with open ('bodies.json') as f:       
     celestarobj = json.load(f)
     
-with open ('bodies.csv', "a", newline = "") as f:  
+with open ('bodies-2.csv', "a", newline = "") as f:  
     
     writer_csv = csv.writer(f)    
     writer_csv.writerow(list_labels)
     for body in celestarobj["bodies"]: 
         mass_dict = body['mass']
         body['mass'] = float(mass_dict['massValue'])*10**(float(mass_dict['massExponent'])) 
-        
-        body.pop('id')
+        body.pop("name")
         body.pop('aroundPlanet')
         body.pop('englishName')
         body.pop('eccentricity') #eccentricté utile? 
