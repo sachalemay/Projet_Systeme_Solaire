@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 struct donneePlanet {
-	char * planetName;			
+	char planetName[100];			
 	double aphelion;
 	double perihelion; 	
 	double demiGrandAxe; 		
@@ -38,11 +38,9 @@ int lireLigne(char * ligne, struct donneePlanet * planet) {
 	if (virgule6 == NULL) return 0;
 	char * virgule7 = strchr(virgule6 + 1, ',');
 	if (virgule7 == NULL) return 0;
-	//printf("%s \n", ligne);
 	int len = virgule1 - ligne;
-	char name [30000];
-	strncpy(name, ligne, len);
-	planet->planetName = name;
+	strncpy(planet->planetName, ligne, len);
+	planet->planetName[len]='\0';;
 	planet->aphelion = atof(virgule1 + 1);
 	planet->perihelion = atof(virgule2 + 1);
 	planet->demiGrandAxe = atof(virgule3 + 1);
@@ -50,7 +48,6 @@ int lireLigne(char * ligne, struct donneePlanet * planet) {
 	planet->radius = atof(virgule5 + 1);
 	planet->fullOrbitTime = atof(virgule6 + 1);
 	planet->gravity = atof(virgule7 + 1);
-	printf("%s \n", name);
 	
     return 1;
    }
@@ -66,8 +63,6 @@ int lireFichier(char * nomFichier, struct donneePlanet * tableauARemplir, int lo
         int ok = lireLigne(buffer, tableauARemplir + ligne);
         if (ok) ligne = ligne + 1;
     }
-
-    // Fermer le fichier et renvoyer le nombre de lignes lues
     fclose(file);
     return ligne;
 }
@@ -80,8 +75,5 @@ int main(int argc, char **argv)
 	for (int i = 0; i<14; i++) {
 		afficher(&planete[i]);
 	}
-
-	//lireLigne("Tamerelefacochere12,445410000,382620000,413690250,9.393000000000001e+20,487.0,1681.63,0.28", &planet1);
-	//afficher(&planet1);
 }
 
