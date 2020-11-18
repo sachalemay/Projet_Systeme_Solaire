@@ -116,35 +116,50 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 				meteor->collisionWith = planets[i].planetName;
 			}
 			*/
-			
-			double coeff_directeur_pl = (planets[i].y_cartesien - planets[i].previous_y_cartesien) / (planets[i].x_cartesien - planets[i].previous_x_cartesien);
-			double b_directeur_pl = planets[i].y_cartesien - coeff_directeur_pl * planets[i].x_cartesien;
-			double points[2];
-			points[0] = meteor->radius;
-			points[1] = -meteor->radius;
-			for (int j=0; j<2; j++){
-				double coeff_directeur_as = (meteor->y_cartesien - meteor->previous_y_cartesien) / (meteor->x_cartesien - meteor->previous_y_cartesien);
-				double b_directeur_as = meteor->y_cartesien - coeff_directeur_as * meteor->x_cartesien + points[j];
-				double x_found = (b_directeur_pl - b_directeur_as) / (coeff_directeur_as - coeff_directeur_pl);
+			if (planets[i].planetName[1] == 'o'){
+				double coeff_directeur_as = (meteor->y_cartesien - meteor->previous_y_cartesien) / (meteor->x_cartesien - meteor->previous_x_cartesien);
+				double b_directeur_as = meteor->y_cartesien - coeff_directeur_as * meteor->x_cartesien;
+				double coeff_directeur_normal = -1 / coeff_directeur_as;
+				double x_found = (b_directeur_as) / (coeff_directeur_as - coeff_directeur_normal);
 				double y_found = coeff_directeur_as * x_found + b_directeur_as;
-				if (x_found < meteor->x_cartesien && x_found > meteor->previous_x_cartesien){
-					double dist_found = sqrt( pow( x_found - meteor->previous_x_cartesien,2) + pow(y_found - meteor->previous_y_cartesien,2) );
-					double dist_tot = sqrt( pow(meteor->x_cartesien - meteor->previous_x_cartesien,2) + pow(meteor->y_cartesien - meteor->previous_y_cartesien,2) );
-					double dist_tot_pl = sqrt(pow(planets[i].x_cartesien - planets[i].previous_x_cartesien,2) + pow(planets[i].y_cartesien - planets[i].previous_y_cartesien,2));
-					double speed_as = dist_tot / timeInterval;
-					double speed_pl = dist_tot_pl / timeInterval;
-					double time_found = dist_found / speed_as;
-					double vector_pl_vx = (meteor->x_cartesien - meteor->previous_x_cartesien)/dist_tot_pl*speed_pl;
-					double vector_pl_vy = (meteor->y_cartesien - meteor->previous_y_cartesien)/dist_tot_pl*speed_pl;
-					double vector_pl_x = vector_pl_vx * time_found;
-					double vector_pl_y = vector_pl_vy * time_found;
-					double x_planet_t = planets[i].previous_x_cartesien + vector_pl_x;
-					double y_planet_t = planets[i].previous_y_cartesien + vector_pl_y;
-					if (pow(x_planet_t-x_found,2)+pow(y_planet_t-y_found,2)<=pow(planets[i].radius,2)){
+				if (pow(x_found,2)+pow(y_found,2)<=pow(planets[i].radius,2)){
 						meteor->collision = 1;
 						meteor->collisionWith = planets[i].planetName;
 						meteor->number_of_pl = i;
 						printf("found: ( %f , %f )\n",x_found,y_found);
+				
+			}
+			else{
+			
+				double coeff_directeur_pl = (planets[i].y_cartesien - planets[i].previous_y_cartesien) / (planets[i].x_cartesien - planets[i].previous_x_cartesien);
+				double b_directeur_pl = planets[i].y_cartesien - coeff_directeur_pl * planets[i].x_cartesien;
+				double points[2];
+				points[0] = meteor->radius;
+				points[1] = -meteor->radius;
+				for (int j=0; j<2; j++){
+					double coeff_directeur_as = (meteor->y_cartesien - meteor->previous_y_cartesien) / (meteor->x_cartesien - meteor->previous_x_cartesien);
+					double b_directeur_as = meteor->y_cartesien - coeff_directeur_as * meteor->x_cartesien + points[j];
+					double x_found = (b_directeur_pl - b_directeur_as) / (coeff_directeur_as - coeff_directeur_pl);
+					double y_found = coeff_directeur_as * x_found + b_directeur_as;
+					if (x_found < meteor->x_cartesien && x_found > meteor->previous_x_cartesien){
+						double dist_found = sqrt( pow( x_found - meteor->previous_x_cartesien,2) + pow(y_found - meteor->previous_y_cartesien,2) );
+						double dist_tot = sqrt( pow(meteor->x_cartesien - meteor->previous_x_cartesien,2) + pow(meteor->y_cartesien - meteor->previous_y_cartesien,2) );
+						double dist_tot_pl = sqrt(pow(planets[i].x_cartesien - planets[i].previous_x_cartesien,2) + pow(planets[i].y_cartesien - planets[i].previous_y_cartesien,2));
+						double speed_as = dist_tot / timeInterval;
+						double speed_pl = dist_tot_pl / timeInterval;
+						double time_found = dist_found / speed_as;
+						double vector_pl_vx = (meteor->x_cartesien - meteor->previous_x_cartesien)/dist_tot_pl*speed_pl;
+						double vector_pl_vy = (meteor->y_cartesien - meteor->previous_y_cartesien)/dist_tot_pl*speed_pl;
+						double vector_pl_x = vector_pl_vx * time_found;
+						double vector_pl_y = vector_pl_vy * time_found;
+						double x_planet_t = planets[i].previous_x_cartesien + vector_pl_x;
+						double y_planet_t = planets[i].previous_y_cartesien + vector_pl_y;
+						if (pow(x_planet_t-x_found,2)+pow(y_planet_t-y_found,2)<=pow(planets[i].radius,2)){
+							meteor->collision = 1;
+							meteor->collisionWith = planets[i].planetName;
+							meteor->number_of_pl = i;
+							printf("found: ( %f , %f )\n",x_found,y_found);
+						}
 					}
 				}
 			}
@@ -170,6 +185,7 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 			double y_planet_t = planets[i]->previous_y_cartesien + vector_pl_y_1;*/
 		}
 	}
+}
 }
 
 void repetitionDeFonctions (int reps, int timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor){
@@ -237,16 +253,16 @@ int main(int argc, char * argv[]) {
 	double gravitationalConstant = 6.6743*pow(10,-20);
 	
 	struct meteorite meteor;
-	meteor.x_cartesien= 0;
-	meteor.y_cartesien= 0;
-	meteor.initialspeed_x= 0;
-	meteor.initialspeed_y= 0;
+	meteor.x_cartesien= 4400;
+	meteor.y_cartesien= -8036000000;
+	meteor.initialspeed_x= 1;
+	meteor.initialspeed_y= 4;
 	meteor.distanceSoleil=sqrt(pow(meteor.x_cartesien,2)+pow(meteor.y_cartesien,2));
 	meteor.masse= 8*pow(10,15);
 	meteor.radius= 350;
 	
 	struct donneePlanet planets[14];
-	int lenght = lireFichier("bodies-2.csv", planets, 14);
+	int lenght = lireFichier("bodies-3.csv", planets, 14);
 	
 	//GlobalPlanetAvancement(time, planets, 2);
 	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
@@ -266,4 +282,4 @@ int main(int argc, char * argv[]) {
 	printf("coordonne: ( %f ; %f )\n", meteor.x_cartesien, meteor.y_cartesien);
 	printf("coordonne %s: ( %f ; %f )\n",meteor.collisionWith, planets[meteor.number_of_pl].x_cartesien, planets[meteor.number_of_pl].y_cartesien);
 	return 0;
-} 
+}
