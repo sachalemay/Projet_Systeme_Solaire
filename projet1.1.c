@@ -80,7 +80,7 @@ void GlobalPlanetAvancement (int time, struct donneePlanet * planets, int lenght
 	for (int i=1; i<lenght; i++){
 		avancementParametrisation(time,&planets[i]);
 	}
-	printf("%f \n", planets[13].x_cartesien);
+	printf("%f \n", planets[14].x_cartesien);
 }
 
 void gravitationalForce (double gravitationalConstant, struct donneePlanet * planet, struct meteorite * meteor, struct forceCaract * force){
@@ -216,14 +216,14 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 
 void repetitionDeFonctions (int reps, int timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor){
 	int time = timeInterval;
-	//while ( 0 == meteor->collision){
-	for (int i=0; i<reps; i++){
+	while ( 0 == meteor->collision){
+	//for (int i=0; i<reps; i++){
 		GlobalPlanetAvancement(time, planets, lenght);
 		struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets, lenght, meteor);
 		applicationForceMeteor(timeInterval, meteor, &forceOnMeteor);
 		conditionCollision (timeInterval,planets, lenght, meteor);
-		//printf("New Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
-		//printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
+		printf("New Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
+		printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
 		time+=timeInterval;
 		
 	}
@@ -281,7 +281,7 @@ void comparaison_vraie_asteroide(int time, struct meteorite * meteor, struct don
 	double delta_y = planets[1].y_cartesien - planets[1].previous_y_cartesien; 
 	double vx_ini = delta_x / time; 
 	double vy_ini = delta_y / time; 
-
+	printf("speed: ( %f; %f )\n",vx_ini,vy_ini);
 	meteor->x_cartesien= planets[1].demiGrandAxe;
 	meteor->y_cartesien= 0;
 	meteor->initialspeed_x= vx_ini;
@@ -295,8 +295,8 @@ int main(int argc, char * argv[]) {
 	
 	int time= 4;
 	double gravitationalConstant = 6.6743*pow(10,-20);
-	struct donneePlanet planets[14];
-	int lenght = lireFichier("bodies-3.csv", planets, 14);
+	struct donneePlanet planets[15];
+	int lenght = lireFichier("bodies-3.csv", planets, 15);
 	
 	struct meteorite meteor;
 	comparaison_vraie_asteroide(time, &meteor,planets);
@@ -307,6 +307,5 @@ int main(int argc, char * argv[]) {
 	printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[1].planetName,planets[1].demiGrandAxe,planets[1].demiPetitAxe,planets[1].distanceSoleil,planets[1].x_cartesien,planets[1].y_cartesien);
 	repetitionDeFonctions( 5,time,gravitationalConstant,planets,lenght,&meteor);
 
-	
 	return 0;
 }
