@@ -104,7 +104,7 @@ struct forceCaract AdditionGravitationalForce (double gravitationalConstant, str
 	struct forceCaract forceOnMeteor = {0,0,0};
 	for (int i=1; i<lenght; i++){
 		gravitationalForce(gravitationalConstant,&planets[i],meteor,&forceOnMeteor);
-		//printf("X:%f\nY:%f\n%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee);
+		printf("force en X:%f\nforce en Y:%f\nIntensitee force:%f\n\n",forceOnMeteor.direction_x,forceOnMeteor.direction_y,forceOnMeteor.intensitee);
 	}
 	return forceOnMeteor;
 }
@@ -216,8 +216,8 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 
 void repetitionDeFonctions (int reps, int timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor){
 	int time = timeInterval;
-	while ( 0 == meteor->collision){
-	//for (int i=0; i<reps; i++){
+	//while ( 0 == meteor->collision){
+	for (int i=0; i<reps; i++){
 		GlobalPlanetAvancement(time, planets, lenght);
 		struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets, lenght, meteor);
 		applicationForceMeteor(timeInterval, meteor, &forceOnMeteor);
@@ -303,9 +303,9 @@ int main(int argc, char * argv[]) {
 	//for (int i = 0; i<13; i++) printf("%f \n ", planets[i].dephasage);
 	//printf("%f", meteor.initialspeed_y);
 	GlobalPlanetAvancement(time, planets, 2);
-	printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
-	printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[1].planetName,planets[1].demiGrandAxe,planets[1].demiPetitAxe,planets[1].distanceSoleil,planets[1].x_cartesien,planets[1].y_cartesien);
-	repetitionDeFonctions( 5,time,gravitationalConstant,planets,lenght,&meteor);
+	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[0].planetName,planets[0].demiGrandAxe,planets[0].demiPetitAxe,planets[0].distanceSoleil,planets[0].x_cartesien,planets[0].y_cartesien);
+	//printf("%s:\nAphelie: %f\nPerihelie: %f\nPar calcul: %f\n(%f,%f)\n\n",planets[1].planetName,planets[1].demiGrandAxe,planets[1].demiPetitAxe,planets[1].distanceSoleil,planets[1].x_cartesien,planets[1].y_cartesien);
+	repetitionDeFonctions( 15,time,gravitationalConstant,planets,lenght,&meteor);
 
 	return 0;
 }
