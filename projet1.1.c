@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 struct donneePlanet {
 	char planetName[100];			//"name"
 	double demiGrandAxe; 		//ou "aphelion"
@@ -153,7 +154,6 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 						meteor->collisionWith = planets[i].planetName;
 						meteor->number_of_pl = i;
 						printf("found: ( %f , %f )\n",x_found,y_found);
-				
 			}
 			else{
 			
