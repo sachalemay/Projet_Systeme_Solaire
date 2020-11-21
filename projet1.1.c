@@ -109,8 +109,8 @@ void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceC
 	printf("forcey= %f \n", forceOnMeteor->direction_y);
 	meteor->previous_x_cartesien = meteor->x_cartesien;
 	meteor->previous_y_cartesien = meteor->y_cartesien;
-	meteor->x_cartesien= forceOnMeteor->direction_x * pow(timeInSec,2) / (2*meteor->masse) + meteor->initialspeed_x * time + meteor->x_cartesien;
-	meteor->y_cartesien= forceOnMeteor->direction_y * pow(timeInSec,2) / (2*meteor->masse) + meteor->initialspeed_y * time + meteor->y_cartesien;
+	meteor->x_cartesien= forceOnMeteor->direction_x * pow(timeInSec,2) / (2*meteor->masse) + meteor->initialspeed_x * timeInSec + meteor->x_cartesien;
+	meteor->y_cartesien= forceOnMeteor->direction_y * pow(timeInSec,2) / (2*meteor->masse) + meteor->initialspeed_y * timeInSec + meteor->y_cartesien;
 	meteor->initialspeed_x= forceOnMeteor->direction_x * timeInSec / meteor->masse + meteor->initialspeed_x;
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
 }
@@ -273,8 +273,8 @@ void comparaison_vraie_asteroide(int time, struct meteorite * meteor, struct don
 	avancementParametrisation(time, Asteroide_reference);
 	double delta_x = Asteroide_reference->x_cartesien - Asteroide_reference->previous_x_cartesien; 
 	double delta_y = Asteroide_reference->y_cartesien - Asteroide_reference->previous_y_cartesien; 
-	double vx_ini = delta_x / time; 
-	double vy_ini = delta_y / time; 
+	double vx_ini = delta_x / (time * 3600 * 24); 
+	double vy_ini = delta_y / (time * 3600 * 24); 
 	//initialising the meteors orbital properties and initial postion with Asteroid_reference's
 	meteor->x_cartesien= Asteroide_reference->demiGrandAxe;
 	meteor->y_cartesien= 0;
@@ -310,6 +310,6 @@ int main(int argc, char * argv[]) {
 	
 	//printf("Asteroide_refe %f : %f \n ", Asteroide_reference.x_cartesien, Asteroide_reference.y_cartesien);
 	//printf("Asteroide test %f : %f \n ", meteor.x_cartesien, meteor.y_cartesien);
-	repetitionDeFonctions( 436,time,gravitationalConstant,planets,lenght,&meteor, &Asteroide_reference);
+	repetitionDeFonctions( 200,time,gravitationalConstant,planets,lenght,&meteor, &Asteroide_reference);
 	return 0;
 }
