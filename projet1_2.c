@@ -380,7 +380,6 @@ int main(int argc, char * argv[]) {
 		printf ("%f\t",meteor.tableau_coordonnees_X[i]); 
 	}
 	printf("\n"); 
-	
 	for(int i=0;i<200;i++) {
 		printf ("%f\t",meteor.tableau_coordonnees_Y[i]); 
 	}
@@ -395,8 +394,5 @@ int main(int argc, char * argv[]) {
 		printf ("%f\t",Asteroide_reference.tableau_coordonnees_Y[i]); 
 	}
 	printf("\n"); 
-	
-
-	
 	return 0; 
 }
