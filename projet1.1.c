@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include "image.h"
 
 
 struct donneePlanet {
@@ -23,6 +24,9 @@ struct donneePlanet {
 	double distanceAsteroide;
 	double dephasage;
 	double Vrai_demiGrandAxe;
+	double * tableau_coordonnees_X;
+	double * tableau_coordonnees_Y;
+	
 };
 struct meteorite {
 	double initialspeed_x;
@@ -38,6 +42,8 @@ struct meteorite {
 	_Bool collision;
 	char * collisionWith;
 	int number_of_pl;
+	double * tableau_coordonnees_X;
+	double * tableau_coordonnees_Y;
 };
 struct forceCaract{
 	double direction_x;
@@ -58,25 +64,24 @@ void global_dephasage (struct donneePlanet * planets, int lenght){
 		aphel_dephasage(&planets[i]);
 	}
 }
-void avancementParametrisation ( int time, struct donneePlanet * planet){
+void avancementParametrisation ( double time, struct donneePlanet * planet){
 	planet->previous_x_cartesien = planet->x_cartesien;
 	planet->previous_y_cartesien = planet->y_cartesien;
 	planet->distanceSoleil = planet->demiPetitAxe * planet->demiGrandAxe / sqrt( pow(planet->demiPetitAxe*cos(time*2*M_PI/planet->fullOrbitTime+planet->dephasage),2) + pow(planet->demiGrandAxe*sin(time*2*M_PI/planet->fullOrbitTime+planet->dephasage),2));
 	planet->x_cartesien= planet->demiGrandAxe * cos(time*2*M_PI / planet->fullOrbitTime + planet->dephasage);
 	planet->y_cartesien= planet->demiPetitAxe * sin(time*2*M_PI / planet->fullOrbitTime + planet->dephasage);
 }
-void avancementParametrisation_Asteroid ( int time, struct donneePlanet * Asteroide_reference){
+void avancementParametrisation_Asteroid ( double time, struct donneePlanet * Asteroide_reference){
 	Asteroide_reference->previous_x_cartesien = Asteroide_reference->x_cartesien;
 	Asteroide_reference->previous_y_cartesien = Asteroide_reference->y_cartesien;
 	Asteroide_reference->distanceSoleil = Asteroide_reference->demiPetitAxe * Asteroide_reference->demiGrandAxe / sqrt( pow(Asteroide_reference->demiPetitAxe*cos(time*2*M_PI/Asteroide_reference->fullOrbitTime+Asteroide_reference->dephasage),2) + pow(Asteroide_reference->demiGrandAxe*sin(time*2*M_PI/Asteroide_reference->fullOrbitTime+Asteroide_reference->dephasage),2));
 	Asteroide_reference->x_cartesien= Asteroide_reference->demiGrandAxe * cos(time*2*M_PI / Asteroide_reference->fullOrbitTime + Asteroide_reference->dephasage);
 	Asteroide_reference->y_cartesien= Asteroide_reference->demiPetitAxe * sin(time*2*M_PI / Asteroide_reference->fullOrbitTime + Asteroide_reference->dephasage);
 }
-void GlobalPlanetAvancement (int time, struct donneePlanet * planets, int lenght){
+void GlobalPlanetAvancement (double time, struct donneePlanet * planets, int lenght){
 	for (int i=1; i<lenght; i++){
 		avancementParametrisation(time,&planets[i]);
 	}
-	//printf("%f \n", planets[13].x_cartesien);
 }
 void gravitationalForce (double gravitationalConstant, struct donneePlanet * planet, struct meteorite * meteor, struct forceCaract * force){
 	meteor->distancePlanet = sqrt(pow(planet->x_cartesien - meteor->x_cartesien,2)+pow(planet->y_cartesien - meteor->y_cartesien,2));
@@ -103,10 +108,10 @@ struct forceCaract AdditionGravitationalForce (double gravitationalConstant, str
 	}
 	return forceOnMeteor;
 }
-void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceCaract * forceOnMeteor){
-	int timeInSec= time *3600 *24;
-	printf("forcex= %f \n", forceOnMeteor->direction_x);
-	printf("forcey= %f \n", forceOnMeteor->direction_y);
+void applicationForceMeteor ( double time, struct meteorite * meteor, struct forceCaract * forceOnMeteor){
+	double timeInSec= time *3600 *24;
+	//printf("forcex= %f \n", forceOnMeteor->direction_x);
+	//printf("forcey= %f \n", forceOnMeteor->direction_y);
 	meteor->previous_x_cartesien = meteor->x_cartesien;
 	meteor->previous_y_cartesien = meteor->y_cartesien;
 	meteor->x_cartesien= forceOnMeteor->direction_x * pow(timeInSec,2) / (2*meteor->masse) + meteor->initialspeed_x * timeInSec + meteor->x_cartesien;
@@ -114,7 +119,7 @@ void applicationForceMeteor ( int time, struct meteorite * meteor, struct forceC
 	meteor->initialspeed_x= forceOnMeteor->direction_x * timeInSec / meteor->masse + meteor->initialspeed_x;
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
 }
-void conditionCollision (int timeInterval, struct donneePlanet * planets, int length, struct meteorite * meteor){
+void conditionCollision (double timeInterval, struct donneePlanet * planets, int length, struct meteorite * meteor){
 	for (int i=1; i<length; i++){
 		
 		if (planets[i].radius + meteor->radius >= planets[i].distanceAsteroide){
@@ -208,8 +213,31 @@ void conditionCollision (int timeInterval, struct donneePlanet * planets, int le
 	}
 }
 }
-void repetitionDeFonctions (int reps, int timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor,  struct donneePlanet * Asteroide_reference){
-	int time = timeInterval;
+
+void enregistre_coordonnees(int i, int length,  struct donneePlanet * planets, struct meteorite * meteor, struct donneePlanet * Asteroide_reference) {
+	for(int j = 0; j<length; j++ ) {
+		planets[j].tableau_coordonnees_X[i] = planets[j].x_cartesien; 
+		planets[j].tableau_coordonnees_Y[i] = planets[j].y_cartesien; 
+	}
+	Asteroide_reference->tableau_coordonnees_X[i] = Asteroide_reference->x_cartesien; 
+	Asteroide_reference->tableau_coordonnees_Y[i] = Asteroide_reference->y_cartesien; 
+	meteor->tableau_coordonnees_X[i] = meteor->x_cartesien; 
+	meteor->tableau_coordonnees_Y[i] = meteor->y_cartesien; 
+}
+
+void initialize_tables(int length, struct donneePlanet * planets, struct meteorite * meteor, struct donneePlanet * Asteroide_reference) {
+	for(int j = 0; j<length; j++ ) {
+		planets[j].tableau_coordonnees_X  = malloc(10000 * sizeof (double)); 
+		planets[j].tableau_coordonnees_Y = malloc(10000 * sizeof (double)); 
+	}
+	Asteroide_reference->tableau_coordonnees_X = malloc(10000 * sizeof (double));
+	Asteroide_reference->tableau_coordonnees_Y = malloc(10000 * sizeof (double));
+	meteor->tableau_coordonnees_X = malloc(10000 * sizeof (double));
+	meteor->tableau_coordonnees_Y = malloc(10000 * sizeof (double));
+}
+
+void repetitionDeFonctions (int reps, double timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor,  struct donneePlanet * Asteroide_reference){
+	double time = timeInterval;
 	//while ( 0 == meteor->collision){
 	for (int i=0; i<reps; i++){
 		GlobalPlanetAvancement(time, planets, lenght);
@@ -217,13 +245,15 @@ void repetitionDeFonctions (int reps, int timeInterval, double gravitationalCons
 		struct forceCaract forceOnMeteor = AdditionGravitationalForce (gravitationalConstant, planets, lenght, meteor);
 		applicationForceMeteor(timeInterval, meteor, &forceOnMeteor);
 		conditionCollision (timeInterval,planets, lenght, meteor);
-		printf("Meteor Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
-		printf("RefAsteroidPosi: (%f , %f)\n \n",Asteroide_reference->x_cartesien, Asteroide_reference->y_cartesien);
+		
+		enregistre_coordonnees(i, lenght, planets, meteor, Asteroide_reference);
+		//printf("Meteor Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
+		//printf("RefAsteroidPosi: (%f , %f)\n \n",Asteroide_reference->x_cartesien, Asteroide_reference->y_cartesien);
 		//printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
 		time+=timeInterval;
 		
 	}
-	printf("time=%d",time);
+	//printf("time=%f",time);
 }
 int lireLigne(char * ligne, struct donneePlanet * planets) {
 	char * virgule1 = strchr(ligne, ',');
@@ -267,7 +297,7 @@ int lireFichier(char * nomFichier, struct donneePlanet * tableauARemplir, int lo
     fclose(file);
     return ligne;
 }
-void comparaison_vraie_asteroide(int time, struct meteorite * meteor, struct donneePlanet * Asteroide_reference) { 
+void comparaison_vraie_asteroide(double time, struct meteorite * meteor, struct donneePlanet * Asteroide_reference) { 
 	Asteroide_reference->x_cartesien = Asteroide_reference->demiGrandAxe;
 	Asteroide_reference->y_cartesien = 0; 
 	avancementParametrisation(time, Asteroide_reference);
@@ -275,10 +305,11 @@ void comparaison_vraie_asteroide(int time, struct meteorite * meteor, struct don
 	double delta_y = Asteroide_reference->y_cartesien - Asteroide_reference->previous_y_cartesien; 
 	double vx_ini = delta_x / (time * 3600 * 24); 
 	double vy_ini = delta_y / (time * 3600 * 24); 
+	//double v_norme = sqrt(pow(vx_ini,2) + pow(vy_ini,2));
 	//initialising the meteors orbital properties and initial postion with Asteroid_reference's
 	meteor->x_cartesien= Asteroide_reference->demiGrandAxe;
 	meteor->y_cartesien= 0;
-	meteor->initialspeed_x= vx_ini;
+	meteor->initialspeed_x= 0.8*vx_ini;
 	meteor->initialspeed_y= vy_ini;
 	meteor->distanceSoleil=Asteroide_reference->distanceSoleil;
 	meteor->masse= Asteroide_reference->masse;
@@ -288,12 +319,80 @@ void comparaison_vraie_asteroide(int time, struct meteorite * meteor, struct don
 	Asteroide_reference->x_cartesien = Asteroide_reference->demiGrandAxe; 
 	Asteroide_reference->y_cartesien = 0;
 }
+
+void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Asteroide_reference, struct meteorite * meteor, int lenght, int nbPoints ) {
+	for(int j=1; j<lenght; j++) {
+		for(int i=0;i<nbPoints;i++) {
+			printf ("%f\t",planets[j].tableau_coordonnees_X[i]); 
+		}
+		printf("\n"); 
+		
+		for(int i=0;i<nbPoints;i++) {
+			printf ("%f\t",planets[j].tableau_coordonnees_Y[i]); 
+		}
+		printf("\n"); 
+		
+	}
+	for(int i=0;i<nbPoints;i++) {
+		printf ("%f\t",meteor->tableau_coordonnees_X[i]); 
+	}
+	printf("\n"); 
+	for(int i=0;i<nbPoints;i++) {
+		printf ("%f\t",meteor->tableau_coordonnees_Y[i]); 
+	}
+	printf("\n"); 
+	
+	for(int i=0;i<nbPoints;i++) {
+		printf ("%f\t",Asteroide_reference->tableau_coordonnees_X[i]); 
+	}
+	printf("\n"); 
+	
+	for(int i=0;i<nbPoints;i++) {
+		printf ("%f\t",Asteroide_reference->tableau_coordonnees_Y[i]); 
+	}
+	printf("\n"); 
+	
+}
+
+int graduation_kuiper (double debut_kuiper, double fin_kuiper, struct meteorite * asteroid, struct Image * image){
+	double speed_as = sqrt( pow( asteroid->initialspeed_x,2) + pow( asteroid->initialspeed_y,2) );
+	double interval_kuiper = fin_kuiper - debut_kuiper;
+	double max_speed = 10;
+	double position_x = asteroid->distanceSoleil - debut_kuiper;
+	int graduation_x = floor( position_x / interval_kuiper * image->width );
+	int graduation_v = image->height -1 - floor( speed_as /max_speed * image->height );
+	printf( "X: %d\nV: %d\n", graduation_x, graduation_v);
+	
+	int pixel_number = graduation_x + graduation_v * image->width ;
+	return pixel_number;
+}
+
+double echelle_kuiper (double proba_list [], struct meteorite * asteroid, struct Image * echelle, struct Pixel * pixel){
+	double point = 0;
+	int ecart = 0;
+	while (point == 0){
+		ecart +=10;
+		for (int i=0; i<echelle->height; i++){
+			int nbr = echelle->width * i;
+			//printf("r = %d, g = %d, b = %d \n",echelle->pixels[nbr].r,echelle->pixels[nbr].g,echelle->pixels[nbr].b);
+			if ( (echelle->pixels[nbr].r < pixel->r+ecart && echelle->pixels[nbr].r > pixel->r-ecart) && (echelle->pixels[nbr].g < pixel->g+ecart && echelle->pixels[nbr].g > pixel->g-ecart) && (echelle->pixels[nbr].b < pixel->b+ecart && echelle->pixels[nbr].b > pixel->b-ecart)){
+				point = nbr;
+				//printf("nombre: %f\n",point);
+			}
+		}
+	}
+	int proba_graduation = floor ( point / (echelle->width * echelle->height) * 6);
+	//printf("grad: %d\n",proba_graduation);
+	double proba = proba_list[proba_graduation];
+	return proba;
+}
+
 int main(int argc, char * argv[]) {
 	
-	int time= 1;
+	double interval_time= 1; // in days
 	double gravitationalConstant = 6.6743*pow(10,-20);
-	struct donneePlanet planets[14];
-	int lenght = lireFichier("bodies-3.csv", planets, 14);
+	struct donneePlanet planets[15]; // j'ai mit à 15
+	int lenght = lireFichier("bodies-3.csv", planets, 15); // 15 !!!!! 
 	
 	// L'astéroide de référence suivant nous permet de vérifier la trajectoire de notre ast. modélisé en comparant les deux trajectoires 
 	struct donneePlanet Asteroide_reference; 
@@ -303,13 +402,25 @@ int main(int argc, char * argv[]) {
 	Asteroide_reference.masse = 7.329 * pow(10,10); //in kg
 	Asteroide_reference.radius = 0.28237; //in km 
 	Asteroide_reference.fullOrbitTime = 436.65; //in days
-	printf("%f \n", Asteroide_reference.x_cartesien);
+
 	
 	struct meteorite meteor;
-	comparaison_vraie_asteroide(time, &meteor,&Asteroide_reference);
+	comparaison_vraie_asteroide(interval_time, &meteor,&Asteroide_reference);
+	initialize_tables(lenght, planets, &meteor, &Asteroide_reference);	
+	repetitionDeFonctions(10000,interval_time,gravitationalConstant,planets,lenght,&meteor, &Asteroide_reference);
 	
-	//printf("Asteroide_refe %f : %f \n ", Asteroide_reference.x_cartesien, Asteroide_reference.y_cartesien);
-	//printf("Asteroide test %f : %f \n ", meteor.x_cartesien, meteor.y_cartesien);
-	repetitionDeFonctions( 200,time,gravitationalConstant,planets,lenght,&meteor, &Asteroide_reference);
-	return 0;
+	
+	char * fichier1 = "image_kuiper.jpg";
+	char * fichier2 = "echelle_kuiper.jpg";
+	
+	struct Image image;
+	image_read(&image, fichier1);
+	struct Image echelle;
+	image_read(&echelle, fichier2);
+	
+	image_free(&echelle);
+	image_free(&image);
+	
+	PrintCoordinates(planets,&Asteroide_reference,&meteor,lenght, 10000);
+	return 0; 
 }
