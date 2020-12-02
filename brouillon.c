@@ -273,10 +273,11 @@ void comparaison_vraie_asteroide(int time, struct meteorite * meteor, struct don
 	Asteroide_reference->y_cartesien = 0; 
 	avancementParametrisation(time, Asteroide_reference);
 	
-	//double delta_x = Asteroide_reference->x_cartesien - Asteroide_reference->previous_x_cartesien; 
-	//double delta_y = Asteroide_reference->y_cartesien - Asteroide_reference->previous_y_cartesien; 
-	//double vx_ini = delta_x / (time * 3600 * 24); 
-	//double vy_ini = delta_y / (time * 3600 * 24); 
+	double delta_x = Asteroide_reference->x_cartesien - Asteroide_reference->previous_x_cartesien; 
+	
+	double delta_y = Asteroide_reference->y_cartesien - Asteroide_reference->previous_y_cartesien; 
+	double vx_ini = delta_x / (time * 3600 * 24); 
+	double vy_ini = delta_y / (time * 3600 * 24); 
 	
 	//initialising the meteors orbital properties and initial postion with Asteroid_reference's
 	meteor->x_cartesien= 150000000;

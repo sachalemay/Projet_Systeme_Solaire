@@ -378,6 +378,39 @@ void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Astero
 	printf("%f", interval_time); // pour récupérer l'intervalle de temps sur python 
 }
 
+int graduation_kuiper (double debut_kuiper, double fin_kuiper, struct meteorite * asteroid, struct Image * image){
+	double speed_as = sqrt( pow( asteroid->initialspeed_x,2) + pow( asteroid->initialspeed_y,2) );
+	double interval_kuiper = fin_kuiper - debut_kuiper;
+	double max_speed = 10;
+	double position_x = asteroid->distanceSoleil - debut_kuiper;
+	int graduation_x = floor( position_x / interval_kuiper * image->width );
+	int graduation_v = image->height -1 - floor( speed_as /max_speed * image->height );
+	printf( "X: %d\nV: %d\n", graduation_x, graduation_v);
+	
+	int pixel_number = graduation_x + graduation_v * image->width ;
+	return pixel_number;
+}
+
+double echelle_kuiper (double proba_list [], struct meteorite * asteroid, struct Image * echelle, struct Pixel * pixel){
+	double point = 0;
+	int ecart = 0;
+	while (point == 0){
+		ecart +=10;
+		for (int i=0; i<echelle->height; i++){
+			int nbr = echelle->width * i;
+			//printf("r = %d, g = %d, b = %d \n",echelle->pixels[nbr].r,echelle->pixels[nbr].g,echelle->pixels[nbr].b);
+			if ( (echelle->pixels[nbr].r < pixel->r+ecart && echelle->pixels[nbr].r > pixel->r-ecart) && (echelle->pixels[nbr].g < pixel->g+ecart && echelle->pixels[nbr].g > pixel->g-ecart) && (echelle->pixels[nbr].b < pixel->b+ecart && echelle->pixels[nbr].b > pixel->b-ecart)){
+				point = nbr;
+				//printf("nombre: %f\n",point);
+			}
+		}
+	}
+	int proba_graduation = floor ( point / (echelle->width * echelle->height) * 6);
+	//printf("grad: %d\n",proba_graduation);
+	double proba = proba_list[proba_graduation];
+	return proba;
+}
+
 int main(int argc, char * argv[]) {
 	int NombrePoints = 30000;
 	double interval_time= 0.1; // in days
@@ -394,6 +427,16 @@ int main(int argc, char * argv[]) {
 	Asteroide_reference.radius = 0.28237; //in km 
 	Asteroide_reference.fullOrbitTime = 436.65; //in days
 
+	/*char * fichier1 = "image_kuiper.jpg";
+	char * fichier2 = "echelle_kuiper.jpg";
+	
+	struct Image image;
+	image_read(&image, fichier1);
+	struct Image echelle;
+	image_read(&echelle, fichier2);
+	
+	image_free(&echelle);
+	image_free(&image);*/
 	
 	struct meteorite meteor;
 	comparaison_vraie_asteroide(interval_time,gravitationalConstant, &meteor,&Asteroide_reference, planets);
