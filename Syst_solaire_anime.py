@@ -65,11 +65,18 @@ center = [WIDTH/2,HEIGHT/2]
 
 #x_max = 3500000000
 #y_max = 3500000000
-x_max = 95000000000
-y_max = 95000000000
+x_max = 950000000
+y_max = 950000000
 
 tk = Tk()
 canvas = Canvas(tk, width = WIDTH, height = HEIGHT, bg = "#212121")
+T = Text(tk, height=2, width=30)
+
+montexte = StringVar()
+label = Label(tk, textvariable = montexte)
+label.pack()
+
+
 tk.title("Solar System")
 canvas.pack()
 
@@ -82,40 +89,53 @@ def stars(numberOfStars):
   for i in range(numberOfStars):
     drawStar = canvas.create_rectangle(starLocations[i][0]-starRadius,starLocations[i][1]-starRadius,
       starLocations[i][0]+starRadius,starLocations[i][1]+starRadius,fill = "white", outline = "")
-stars(174)
+stars(300)
 
 
 ceres = Planet("ceres", s[0], s[1], 5, "#7A7373")
 eris = Planet("eris", s[2], s[3], 5, "#898989")
 uranus = Planet("uranus", s[4], s[5], 5, "#4FD0E7")
 pluton = Planet("pluton", s[6], s[7], 5, "#9ca6b7")
-neptune = Planet("neptune",s[8],s[9],10, "#73ACAC")
-haumea = Planet("haumea",s[10],s[11],10, "#F5F5F5")
-makemake = Planet("makemake",s[12],s[13],10, "#D07649")
+neptune = Planet("neptune",s[8],s[9],5, "#73ACAC")
+haumea = Planet("haumea",s[10],s[11],5, "#F5F5F5")
+makemake = Planet("makemake",s[12],s[13],5, "#D07649")
 jupiter = Planet("jupiter",s[14], s[15], 5, "#DE654B")
-mars = Planet("mars",s[16], s[17], 5, "#FF2D00")
+mars = Planet("mars",s[16], s[17], 10, "#FF2D00")
 mercury = Planet("mercury", s[18],s[19],2, "#B99289")
 saturne = Planet("saturne",s[20], s[21], 5, "#C0B89E")
 sun     = Planet("sun", [0],[0],17, "#FCD440")
 earth = Planet("earth",s[24], s[25], 5, "#0859AD")
 venus = Planet("venus",s[26],s[27],15, "#FF5733")
-asteroide = Planet("asteroide",s[28], s[29], 6, "brown")
-asteroide_reference = Planet("asteroide_ref",s[30], s[31], 12, "brown")
+asteroide = Planet("asteroide",s[28], s[29], 10, "blue")
+asteroide_reference = Planet("asteroide_ref",s[30], s[31], 1, "red")
 
-
-while t<10000:
+interval_time = s[32][0]
+montexte.set("Time = 0 days")
+while t<29000:
+  present_time = t * interval_time
+  present_time_txt = "%.1f" % present_time
+  txt = "Time = " + present_time_txt + " days"
+  montexte.set(txt)
+  
+  
   ceres.updateCoordinates()
+  eris.updateCoordinates()
+  uranus.updateCoordinates()
+  pluton.updateCoordinates()
+  neptune.updateCoordinates()
+  haumea.updateCoordinates()
+  makemake.updateCoordinates()
+  jupiter.updateCoordinates()
+  mars.updateCoordinates()
   mercury.updateCoordinates()
+  saturne.updateCoordinates()
   earth.updateCoordinates()
   venus.updateCoordinates()
   jupiter.updateCoordinates()
-  mars.updateCoordinates()
-  neptune.updateCoordinates()
-  saturne.updateCoordinates()
   asteroide.updateCoordinates()
   asteroide_reference.updateCoordinates()
   
-  time.sleep(0.001)
+  time.sleep(0.009)
   tk.update()
 
 canvas.mainloop()
