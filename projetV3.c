@@ -44,6 +44,7 @@ struct meteorite {
 	int number_of_pl;
 	double * tableau_coordonnees_X;
 	double * tableau_coordonnees_Y;
+	double * tableau_distance_soleil;
 };
 struct forceCaract{
 	double direction_x;
@@ -85,6 +86,7 @@ void GlobalPlanetAvancement (double time, struct donneePlanet * planets, int len
 }
 void gravitationalForce (double gravitationalConstant, struct donneePlanet * planet, struct meteorite * meteor, struct forceCaract * force){
 	meteor->distancePlanet = sqrt(pow(planet->x_cartesien - meteor->x_cartesien,2)+pow(planet->y_cartesien - meteor->y_cartesien,2));
+	meteor->distanceSoleil = sqrt(pow(meteor->x_cartesien,2)+pow(meteor->y_cartesien,2)); // distance au soleil 
 	planet->distanceAsteroide = meteor->distancePlanet;
 	double intensitee = gravitationalConstant * planet->masse * meteor->masse / pow(meteor->distancePlanet,2);
 	force->intensitee+=intensitee;
@@ -221,6 +223,7 @@ void enregistre_coordonnees(int i, int length,  struct donneePlanet * planets, s
 	Asteroide_reference->tableau_coordonnees_Y[i] = Asteroide_reference->y_cartesien; 
 	meteor->tableau_coordonnees_X[i] = meteor->x_cartesien; 
 	meteor->tableau_coordonnees_Y[i] = meteor->y_cartesien; 
+	meteor->tableau_distance_soleil[i] = meteor->distanceSoleil; 
 }
 
 void initialize_tables(int length, struct donneePlanet * planets, struct meteorite * meteor, struct donneePlanet * Asteroide_reference, int NombrePoints) {
@@ -232,6 +235,7 @@ void initialize_tables(int length, struct donneePlanet * planets, struct meteori
 	Asteroide_reference->tableau_coordonnees_Y = malloc(NombrePoints * sizeof (double));
 	meteor->tableau_coordonnees_X = malloc(NombrePoints * sizeof (double));
 	meteor->tableau_coordonnees_Y = malloc(NombrePoints * sizeof (double));
+	meteor->tableau_distance_soleil = malloc(NombrePoints * sizeof (double));
 }
 
 void free_tables(int length, struct donneePlanet * planets, struct meteorite * meteor, struct donneePlanet * Asteroide_reference, int NombrePoints) {
@@ -243,6 +247,7 @@ void free_tables(int length, struct donneePlanet * planets, struct meteorite * m
 	free(Asteroide_reference->tableau_coordonnees_Y);
 	free(meteor->tableau_coordonnees_X);
 	free(meteor->tableau_coordonnees_Y);
+	free(meteor->tableau_distance_soleil);
 }
 
 int repetitionDeFonctions (int NombrePointsMax, double timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor,  struct donneePlanet * Asteroide_reference){
@@ -330,7 +335,7 @@ void comparaison_vraie_asteroide(double time, double gravitationalConstant, stru
 	//initialising the meteors orbital properties and initial postion with Asteroid_reference's
 	meteor->x_cartesien= -planets[9].demiGrandAxe;
 	meteor->y_cartesien= 13000;
-	meteor->initialspeed_x= 1.41*vx_ini;
+	meteor->initialspeed_x= 1.41*vx_ini; 
 	meteor->initialspeed_y= 0.678*vy_ini;
 	meteor->distanceSoleil=planets[9].distanceSoleil;
 	meteor->masse= planets[9].masse;
@@ -379,10 +384,15 @@ void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Astero
 	}
 	printf("\n"); 
 	
-	printf("%f", interval_time);  // pour récupérer l'intervalle de temps sur python 
-	printf("\n"); 
+	printf("%f \n", interval_time);  // pour récupérer l'intervalle de temps sur python 
+	printf("%d \n", nbPoints); // récupérer le nombre de points (est différent de NombrePointsMax si il y a eu collision avec un astre) 
 	
-	printf("%d", nbPoints);
+	
+	for(int i=0;i<nbPoints;i++) {
+		printf ("%f\t",meteor->tableau_distance_soleil[i]); 
+	}	
+	printf("\n"); 
+	printf("%d", meteor->number_of_pl);
 }
 
 int graduation_kuiper (double debut_kuiper, double fin_kuiper, struct meteorite * asteroid, struct Image * image){
@@ -452,6 +462,6 @@ int main(int argc, char * argv[]) {
 	
 	PrintCoordinates(planets,&Asteroide_reference,&meteor,lenght, NombrePointsWhile, interval_time); // boucle while
 	free_tables(lenght, planets, &meteor, &Asteroide_reference, NombrePointsMax);
-	//printf("%s", meteor.collisionWith);
+
 	return 0; 
 }
