@@ -56,7 +56,6 @@ double random_radian() {
 	return radian; 
 }
 void aphel_dephasage(struct donneePlanet * planet){
-	srand(time(NULL));
 	random_radian();
 	planet->dephasage = random_radian(); 	
 }
@@ -64,6 +63,7 @@ void global_dephasage (struct donneePlanet * planets, int lenght){
 	for (int i=1; i<lenght; i++){
 		aphel_dephasage(&planets[i]);
 	}
+	
 }
 void avancementParametrisation ( double time, struct donneePlanet * planet){
 	planet->previous_x_cartesien = planet->x_cartesien;
@@ -86,7 +86,6 @@ void GlobalPlanetAvancement (double time, struct donneePlanet * planets, int len
 }
 void gravitationalForce (double gravitationalConstant, struct donneePlanet * planet, struct meteorite * meteor, struct forceCaract * force){
 	meteor->distancePlanet = sqrt(pow(planet->x_cartesien - meteor->x_cartesien,2)+pow(planet->y_cartesien - meteor->y_cartesien,2));
-	meteor->distanceSoleil = sqrt(pow(meteor->x_cartesien,2)+pow(meteor->y_cartesien,2)); // distance au soleil 
 	planet->distanceAsteroide = meteor->distancePlanet;
 	double intensitee = gravitationalConstant * planet->masse * meteor->masse / pow(meteor->distancePlanet,2);
 	force->intensitee+=intensitee;
@@ -120,6 +119,7 @@ void applicationForceMeteor ( double time, struct meteorite * meteor, struct for
 	meteor->y_cartesien= forceOnMeteor->direction_y * pow(timeInSec,2) / (2*meteor->masse) + meteor->initialspeed_y * timeInSec + meteor->y_cartesien;
 	meteor->initialspeed_x= forceOnMeteor->direction_x * timeInSec / meteor->masse + meteor->initialspeed_x;
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
+	meteor->distanceSoleil = sqrt(pow(meteor->x_cartesien,2)+pow(meteor->y_cartesien,2)); // distance au soleil 
 }
 void conditionCollision (double timeInterval, struct donneePlanet * planets, int length, struct meteorite * meteor){
 	for (int i=1; i<length; i++){
@@ -202,7 +202,7 @@ void conditionCollision (double timeInterval, struct donneePlanet * planets, int
 							double dist_aspl_pl = sqrt( pow(x_found - x_asteroid_t,2) + pow(y_found - y_asteroid_t,2));
 							
 							double sum_radius = meteor->radius + planets[i].radius;
-							if ( dist_aspl_as < sum_radius + 460000 || dist_aspl_pl < sum_radius + 460000){
+							if ( dist_aspl_as < sum_radius + 470000 || dist_aspl_pl < sum_radius + 470000){
 								//printf("1\n");
 								meteor->collision = 1;
 								meteor->collisionWith = planets[i].planetName;
@@ -253,6 +253,19 @@ void free_tables(int length, struct donneePlanet * planets, struct meteorite * m
 int repetitionDeFonctions (int NombrePointsMax, double timeInterval, double gravitationalConstant, struct donneePlanet * planets, int lenght, struct meteorite * meteor,  struct donneePlanet * Asteroide_reference){
 	double time = timeInterval;
 	int i = 0; 
+	
+	//~ //Parametrisation de la ceinture de kuiper
+	//char * fichier1 = "image_kuiper.jpg";
+	//char * fichier2 = "echelle_kuiper.jpg";
+	//struct Image image;
+	//image_read(&image, fichier1);
+	//struct Image echelle;
+	//image_read(&echelle, fichier2);
+	//long double debut_kuiper = 4500000000;
+	//long double fin_kuiper = 7500000000;
+	
+	//double proba_list [] = { pow(10,-2) , pow(10,-3), pow(10,-4), pow(10,-5), pow(10,-6), pow(10,-7), pow(10,-8)};
+		
 	while ( 0 == meteor->collision && i< NombrePointsMax){
 	//for (int i=0; i<reps; i++){
 		GlobalPlanetAvancement(time, planets, lenght);
@@ -262,12 +275,33 @@ int repetitionDeFonctions (int NombrePointsMax, double timeInterval, double grav
 		conditionCollision (timeInterval,planets, lenght, meteor);
 		
 		enregistre_coordonnees(i, lenght, planets, meteor, Asteroide_reference);
+		
+		//collision avec ceinture de kuiper
+		//~ if ( meteor->distanceSoleil > debut_kuiper && meteor->distanceSoleil < fin_kuiper ){
+			//~ if ( sqrt( pow(meteor->initialspeed_x,2) + pow(meteor->initialspeed_y,2)) < 10){
+				//~ int pixel_number = graduation_kuiper (debut_kuiper, fin_kuiper , meteor, &image); 
+				//~ double proba = echelle_kuiper( proba_list, meteor, &echelle, &image.pixels[pixel_number] );
+			//~ }
+			//~ else {
+				//~ double proba = proba_list[-1];
+			//~ }
+			//~ proba_collision (proba, meteor);
+		//~ }
+		//~ else if ( meteor->distanceSoleil > fin_kuiper){
+			//~ meteor->collision = 1;
+			//~ meteor->collisionWith = "L'astéroide à quitté le système solaire";
+		//~ }
+		
+		
 		//printf("Meteor Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
 		//printf("RefAsteroidPosi: (%f , %f)\n \n",Asteroide_reference->x_cartesien, Asteroide_reference->y_cartesien);
 		//printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
 		time+=timeInterval;
 		i+=1; 
 	}
+	//Libération des fichiers image
+	//~ image_free(&echelle);
+	//~ image_free(&image);
 	return i; 
 }
 int lireLigne(char * ligne, struct donneePlanet * planets) {
@@ -385,8 +419,8 @@ void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Astero
 	printf("\n"); 
 	
 	printf("%f \n", interval_time);  // pour récupérer l'intervalle de temps sur python 
-	printf("%d \n", nbPoints); // récupérer le nombre de points (est différent de NombrePointsMax si il y a eu collision avec un astre) 
-	
+	printf("%d", nbPoints); // récupérer le nombre de points (est différent de NombrePointsMax si il y a eu collision avec un astre) 
+	printf("\n"); 
 	
 	for(int i=0;i<nbPoints;i++) {
 		printf ("%f\t",meteor->tableau_distance_soleil[i]); 
@@ -429,6 +463,9 @@ double echelle_kuiper (double proba_list [], struct meteorite * asteroid, struct
 }
 
 int main(int argc, char * argv[]) {
+	
+	srand(time(NULL));
+	
 	int NombrePointsMax = 10000;
 	double interval_time= 0.9; // in days
 	double gravitationalConstant = 6.67408*pow(10,-20);
@@ -444,6 +481,8 @@ int main(int argc, char * argv[]) {
 	Asteroide_reference.radius = 0.28237; //in km 
 	Asteroide_reference.fullOrbitTime = 436.65; //in days
 
+	//global_dephasage(planets, lenght);
+	
 	/*char * fichier1 = "image_kuiper.jpg";
 	char * fichier2 = "echelle_kuiper.jpg";
 	
@@ -462,6 +501,11 @@ int main(int argc, char * argv[]) {
 	
 	PrintCoordinates(planets,&Asteroide_reference,&meteor,lenght, NombrePointsWhile, interval_time); // boucle while
 	free_tables(lenght, planets, &meteor, &Asteroide_reference, NombrePointsMax);
+
+	printf("\ncolli X = %f  colli Y = %f",planets[meteor.number_of_pl].x_cartesien, planets[meteor.number_of_pl].y_cartesien);
+	printf("\nAst X = %f  Ast Y = %f",meteor.x_cartesien, meteor.y_cartesien);
+
+
 
 	return 0; 
 }

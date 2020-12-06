@@ -47,7 +47,6 @@ def resize_global(size_mult):
     for object in object_list:
         if object.name != "asteroide": 
             object.resize(size_mult)
-    sun.resize(size_mult)
     
 def change_bornes(t): 
     global x_max
@@ -65,11 +64,13 @@ def change_bornes(t):
 if __name__ == "__main__":
   s = []
   c = 1
+  counter = 0
   while c == True:
     try:
       tmp = input().strip().split()
       data = np.array(tmp, dtype=np.double)
       s.append(data)
+      counter += 1
     except EOFError:
       print("Input has terminated!")
       c = 0
@@ -97,6 +98,24 @@ label.pack()
 tk.title("Solar System")
 canvas.pack()
 
+
+
+def pop_up(collision_with_planet): 
+    global pop 
+    pop =Toplevel(tk)
+    pop.title("End of simulation")
+    pop.geometry("1200x60")
+    pop.config(bg = "black")
+    if int(collision_with_planet) != 15 and int(collision_with_planet) != 16: 
+        txt = "Asteroid collided with %s" % object_list_name[int(collision_with_planet)-1]
+    elif int(collision_with_planet) == 15:
+        txt = "Asteroid collided with other asteroid from the Kuiper belt"
+    else: 
+       txt = "Asteroid left the solar system" 
+    pop_label = Label(pop, text = txt, bg = "black", fg = "red", font = ("helvetica", 35))
+    pop_label.pack(pady= 15, padx= 18)
+
+
 def stars(numberOfStars):
   starLocations = []
   starRadius = 0.5
@@ -119,7 +138,7 @@ def KuiperBelt(asteroid_number):
     drawAst = canvas.create_rectangle(astLocations[i][0]-astRadius,astLocations[i][1]-astRadius,
       astLocations[i][0]+astRadius,astLocations[i][1]+astRadius,fill = "brown", outline = "")
 
-KuiperBelt(800)
+#KuiperBelt(800)
 
 
 ceres = Celestar_object("ceres", s[0], s[1], 4, "#7A7373")
@@ -137,13 +156,18 @@ sun     = Celestar_object("sun", [0],[0],30, "#FCD440")
 earth = Celestar_object("earth",s[24], s[25], 10.4, "#0859AD")
 venus = Celestar_object("venus",s[26],s[27],10.4, "#FF5733")
 asteroide = Celestar_object("asteroide",s[28], s[29], 2, "white")
-asteroide_reference = Celestar_object("asteroide_ref",s[30], s[31], 4, "brown")
+asteroide_reference = Celestar_object("asteroide_ref",s[30], s[31], 4, "purple")
 interval_time = s[32][0]
 NbPoints = int(s[33][0])
+
+
+
 tableau_distance_soleil = s[34]
 collision_with_planet = s[35]
 
 object_list = [ceres,eris, uranus, pluton, neptune, haumea, makemake, jupiter, mars, mercury, saturne, earth, venus, asteroide, asteroide_reference ] # sans soleil 
+object_list_name = [p.name for p in object_list] # sans soleil 
+object_list_name.append(["Kuiper/ asteroid belt", "left solar system"])
 
 print(NbPoints)
 
@@ -154,7 +178,7 @@ while t<NbPoints-2:
   dist_sun = "%10.4E" % s[34][t]
   txt = "Time = " + present_time_txt + " days" + "                      Asteroid's distance from Sun  = " +  dist_sun + " kilometers..."
   montexte.set(txt)
-  #change_bornes(t)
+  change_bornes(t)
   
   ceres.updateCoordinates()
   eris.updateCoordinates()
@@ -176,5 +200,9 @@ while t<NbPoints-2:
   #time.sleep(0.009)
   time.sleep(0.000000000001)
   tk.update()
+
+
+if collision_with_planet != 0 : 
+    pop_up(collision_with_planet)
 
 canvas.mainloop()
