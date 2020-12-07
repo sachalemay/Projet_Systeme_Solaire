@@ -39,6 +39,7 @@ struct meteorite {
 	double previous_x_cartesien;
 	double y_cartesien;
 	double previous_y_cartesien;
+	double vitesse_tot;
 	_Bool collision;
 	char * collisionWith;
 	int number_of_pl;
@@ -120,6 +121,7 @@ void applicationForceMeteor ( double time, struct meteorite * meteor, struct for
 	meteor->initialspeed_x= forceOnMeteor->direction_x * timeInSec / meteor->masse + meteor->initialspeed_x;
 	meteor->initialspeed_y= forceOnMeteor->direction_y * timeInSec / meteor->masse + meteor->initialspeed_y;
 	meteor->distanceSoleil = sqrt(pow(meteor->x_cartesien,2)+pow(meteor->y_cartesien,2)); // distance au soleil 
+	meteor->vitesse_tot = sqrt(pow(meteor->initialspeed_x,2) + pow(meteor->initialspeed_y,2));
 }
 void conditionCollision (double timeInterval, struct donneePlanet * planets, int length, struct meteorite * meteor){
 	for (int i=1; i<length; i++){
@@ -327,7 +329,7 @@ int repetitionDeFonctions (int NombrePointsMax, double timeInterval, double grav
 		
 		//collision avec ceinture de kuiper
 		//~ if ( meteor->distanceSoleil > debut_kuiper && meteor->distanceSoleil < fin_kuiper ){
-			//~ if ( sqrt( pow(meteor->initialspeed_x,2) + pow(meteor->initialspeed_y,2)) < 10){
+			//~ if ( meteor->vitesse_tot < 10){
 				//~ int pixel_number = graduation_kuiper (debut_kuiper, fin_kuiper , meteor, &image); 
 				//~ double proba = echelle_kuiper( proba_list, meteor, &echelle, &image.pixels[pixel_number] );
 				//~ proba_collision (proba, meteor);
@@ -482,13 +484,64 @@ void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Astero
 
 
 int main(int argc, char * argv[]) {
-	int Mode;
-    fprintf(stderr, "Enter an integer please: ");
-    scanf("%d", &Mode);
-    fprintf(stderr, "\nYour value:%d ", Mode);
 	srand(time(NULL));
+	//double gravitationalConstant = 6.67408*pow(10,-20);
+	struct meteorite asteroid;
 	
-	int NombrePointsMax = 10000;
+	int Mode;
+    fprintf(stderr, " Rentrez un scenario: \n\t 1: Modele de collision \n\t 2: Collision avec la ceinture de kuiper (limite exterieure) \n\t 3: Preuve du modele de force en suivant une trajectoire predefini \n\t 4: Mode libre (choix de toutes les donnees) \n");
+    scanf("%d", &Mode);
+    
+    if (Mode == 1){			//collision
+		int * poubelle;
+		fprintf(stderr, " Ce scenario permet de montrer que notre systeme de collision fontionne en prenant un exemple que nous avons trouver \n Toutes les donnees sont deja rentrer pour montrer une collision en particulier \n A vous d'en trouver d'autre sur le mode libre ;)");
+		fprintf(stderr, " \n(tapez un nombre pour passer a la simulation)");
+		scanf("%d",poubelle);
+		
+	}
+	
+	else if (Mode == 2){		//kuiper
+		asteroid.x_cartesien = 4400000000;
+		asteroid.y_cartesien = 0;
+		fprintf(stderr, " Vous devez choisir une valeur positive pour la vitesse initial de l'asteroide; \n Si vous entrez v0 > 6km/s l'asteroide va souvent sortir du systeme solaire \n Si vous entrez v0 < 2km/s l'asteroide va souvent collisionner dans la ceinture de kuiper\n On a une bonne repartition des cas pour v0 entre 2 et 3Km/s\n v0 : ");
+		scanf("%lf", &asteroid.vitesse_tot);
+		asteroid.x_cartesien = asteroid.y_cartesien *4;
+	}
+	
+	else if (Mode == 3){		//ellipse
+		fprintf(stderr, " Le but de ce scenario est de montrer que notre systeme physique marche bien et que l'asteroid suit bien une ellipse de référence\n On suivra ici la trajectoire de mars\n");
+		int * poubelle;
+		scanf("%d",poubelle);
+	}
+	
+	else if (Mode == 4){		//manuel
+		fprintf(stderr, " Sur ce mode libre, toutes les donnees (de l'asteroide) sont modifiable, a vous de tester ce que vous voulez!\n");
+		fprintf(stderr, " Position initiale de l'asteroide [km]: \n (Indication : le systeme solaire s'etend sur un rayon de 75*10^9 km autour du soleil)\n (Culture : la Terre se trouve en moyenne a 150 000 000 km du soleil\n\t x0= ");
+		scanf("%lf",&asteroid.x_cartesien);
+		fprintf(stderr, "\t y0 = ");
+		scanf("%lf",&asteroid.y_cartesien);
+		fprintf(stderr, " Vitesse initiale de l'asteroide [km/s]: \n (Indication : la vitesse moyenne des asteroides du systeme solaire est de 5km/s)\n (Culture : le dernier asteroide qui à 'froler' la terre avait une vitesse totale de 12.4km/s)\n\t v0_x = ");
+		scanf("%lf",&asteroid.initialspeed_x);
+		fprintf(stderr, "\t v0_y = ");
+		scanf("%lf",&asteroid.initialspeed_y);
+		fprintf(stderr, " Taille de l'asteroide [km]: \n (Indication : Les rayons des asteroides connu vari entre 0 et 1000km) \n (Culture : l'asteroide Chicxulub qui a cause l'extinction des dinosaures n'avais un rayon que de 12km) \n\t rayon = ");
+		scanf("%lf",&asteroid.radius);
+		asteroid.masse = 2 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+		fprintf(stderr, " Position initiale des planetes : \n\t 0: position aleatoire sur leurs ellipses \n\t 1: position allignee sur l'axe y=0\n");
+		int angle;
+		scanf("%d", &angle);
+		if (angle == 0){
+			//global_dephasage(planets, lenght);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	int NombrePointsMax = 100;
 	double interval_time= 0.9; // in days
 	double gravitationalConstant = 6.67408*pow(10,-20);
 	struct donneePlanet planets[15]; // j'ai mit à 15
