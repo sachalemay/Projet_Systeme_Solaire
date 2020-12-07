@@ -485,8 +485,26 @@ void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Astero
 
 int main(int argc, char * argv[]) {
 	srand(time(NULL));
-	//double gravitationalConstant = 6.67408*pow(10,-20);
+	
+	double gravitationalConstant = 6.67408*pow(10,-20);
+	double interval_time = 1;  //en jours
+	int NombrePointsMax = 100;
+
+	struct donneePlanet planets[15]; // j'ai mit à 15
+	int lenght = lireFichier("bodies-3.csv", planets, 15); // 15 !!!!! 
+	
+	// L'astéroide de référence suivant nous permet de vérifier la trajectoire de notre ast. modélisé en comparant les deux trajectoires 
+	struct donneePlanet Asteroide_reference;
+	strcpy(Asteroide_reference.planetName, "Benu");
+	Asteroide_reference.demiGrandAxe = 202.84 * pow(10,6); // in km 
+	Asteroide_reference.demiPetitAxe = 134.173 * pow(10,6); // in km
+	Asteroide_reference.masse = 7.329 * pow(10,10); //in kg
+	Asteroide_reference.radius = 0.28237; //in km 
+	Asteroide_reference.fullOrbitTime = 436.65; //in days
+	
+	
 	struct meteorite asteroid;
+	initialize_tables(lenght, planets, &asteroid, &Asteroide_reference, NombrePointsMax);
 	
 	int Mode;
     fprintf(stderr, " Rentrez un scenario: \n\t 1: Modele de collision \n\t 2: Collision avec la ceinture de kuiper (limite exterieure) \n\t 3: Preuve du modele de force en suivant une trajectoire predefini \n\t 4: Mode libre (choix de toutes les donnees) \n");
@@ -505,13 +523,22 @@ int main(int argc, char * argv[]) {
 		asteroid.y_cartesien = 0;
 		fprintf(stderr, " Vous devez choisir une valeur positive pour la vitesse initial de l'asteroide; \n Si vous entrez v0 > 6km/s l'asteroide va souvent sortir du systeme solaire \n Si vous entrez v0 < 2km/s l'asteroide va souvent collisionner dans la ceinture de kuiper\n On a une bonne repartition des cas pour v0 entre 2 et 3Km/s\n v0 : ");
 		scanf("%lf", &asteroid.vitesse_tot);
-		asteroid.x_cartesien = asteroid.y_cartesien *4;
+		fprintf(stderr, " Taille de l'asteroide [km]: \n (Indication : Les rayons des asteroides connu vari entre 0 et 1000km) \n (Culture : l'asteroide Chicxulub qui a cause l'extinction des dinosaures n'avais un rayon que de 12km) \n\t rayon = ");
+		scanf("%lf",&asteroid.radius);
+		asteroid.masse = 2 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+		fprintf(stderr," Interval de temps entre deux points [jour]: \n (Indication : c'est mieux de le faire avec un interval entre 0.1 et 2 jours)\n");
+		scanf("%lf", &interval_time);
+		
+		int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	}
 	
 	else if (Mode == 3){		//ellipse
 		fprintf(stderr, " Le but de ce scenario est de montrer que notre systeme physique marche bien et que l'asteroid suit bien une ellipse de référence\n On suivra ici la trajectoire de mars\n");
 		int * poubelle;
 		scanf("%d",poubelle);
+		
+		comparaison_vraie_asteroide(interval_time, gravitationalConstant, &asteroid, &Asteroide_reference, planets);
+		int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	}
 	
 	else if (Mode == 4){		//manuel
@@ -531,8 +558,12 @@ int main(int argc, char * argv[]) {
 		int angle;
 		scanf("%d", &angle);
 		if (angle == 0){
-			//global_dephasage(planets, lenght);
+			global_dephasage(planets, lenght);
 		}
+		fprintf(stderr," Interval de temps entre deux points [jour]: \n (Indication : c'est mieux de le faire avec un interval entre 0.1 et 2 jours)\n");
+		scanf("%lf", &interval_time);
+		
+		int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	}
 	
 	
@@ -541,8 +572,8 @@ int main(int argc, char * argv[]) {
 	
 	
 	
-	int NombrePointsMax = 100;
-	double interval_time= 0.9; // in days
+	/*int NombrePointsMax = 100;
+	//double interval_time= 0.9; // in days
 	double gravitationalConstant = 6.67408*pow(10,-20);
 	struct donneePlanet planets[15]; // j'ai mit à 15
 	int lenght = lireFichier("bodies-3.csv", planets, 15); // 15 !!!!! 
@@ -554,7 +585,7 @@ int main(int argc, char * argv[]) {
 	Asteroide_reference.demiPetitAxe = 134.173 * pow(10,6); // in km
 	Asteroide_reference.masse = 7.329 * pow(10,10); //in kg
 	Asteroide_reference.radius = 0.28237; //in km 
-	Asteroide_reference.fullOrbitTime = 436.65; //in days
+	Asteroide_reference.fullOrbitTime = 436.65; //in days*/
 
 	//global_dephasage(planets, lenght);
 	
