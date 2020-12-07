@@ -482,7 +482,10 @@ void PrintCoordinates(struct donneePlanet * planets,struct donneePlanet * Astero
 
 
 int main(int argc, char * argv[]) {
-	
+	int Mode;
+    fprintf(stderr, "Enter an integer please: ");
+    scanf("%d", &Mode);
+    fprintf(stderr, "\nYour value:%d ", Mode);
 	srand(time(NULL));
 	
 	int NombrePointsMax = 10000;
@@ -492,7 +495,7 @@ int main(int argc, char * argv[]) {
 	int lenght = lireFichier("bodies-3.csv", planets, 15); // 15 !!!!! 
 	
 	// L'astéroide de référence suivant nous permet de vérifier la trajectoire de notre ast. modélisé en comparant les deux trajectoires 
-	struct donneePlanet Asteroide_reference; 
+	struct donneePlanet Asteroide_reference;
 	strcpy(Asteroide_reference.planetName, "Benu");
 	Asteroide_reference.demiGrandAxe = 202.84 * pow(10,6); // in km 
 	Asteroide_reference.demiPetitAxe = 134.173 * pow(10,6); // in km
