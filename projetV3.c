@@ -351,7 +351,6 @@ int lireLigne(char * ligne, struct donneePlanet * planets) {
 	planets->masse = atof(virgule4 + 1);
 	planets->radius = atof(virgule5 + 1);
 	planets->fullOrbitTime = atof(virgule6 + 1);
-	planets->gravity = atof(virgule7 + 1);
 	
     return 1;
    }
@@ -482,7 +481,7 @@ int main(int argc, char * argv[]) {
     
     if (Mode == 1){			//collision
 		int n_collision;
-		fprintf(stderr, " Ce scenario permet de montrer que notre systeme de collision fontionne en prenant un exemple que nous avons trouver \n Toutes les donnees sont deja rentrer pour montrer une collision en particulier \n A vous d'en trouver d'autre sur le mode libre ;)");
+		fprintf(stderr, " Ce scenario permet de montrer que notre systeme de collision fontionne en prenant des exemples que nous avons trouver \n Toutes les donnees sont deja rentrer pour montrer une collision en particulier \n A vous d'en trouver d'autre sur le mode libre ;)");
 		fprintf(stderr, "\n Choisissez une collision parmis: \n\t 1: Soleil \n\t 2: Ceres \n");
 		scanf("%d", &n_collision);
 		
@@ -532,7 +531,7 @@ int main(int argc, char * argv[]) {
 	
 	else if (Mode == 4){		//manuel
 		fprintf(stderr, " Sur ce mode libre, toutes les donnees (de l'asteroide) sont modifiable, a vous de tester ce que vous voulez!\n");
-		fprintf(stderr, " Position initiale de l'asteroide [km]: \n (Indication : le systeme solaire s'etend sur un rayon de 75*10^9 km autour du soleil)\n (Culture : la Terre se trouve en moyenne a 150 000 000 km du soleil\n\t x0= ");
+		fprintf(stderr, " Position initiale de l'asteroide [km]: \n (Indication : le systeme solaire s'etend sur un rayon de 75*10^9 km autour du soleil qui a un rayon de 7*10^5 km)\n (Culture : la Terre se trouve en moyenne a 150 000 000 km du soleil\n\t x0= ");
 		scanf("%lf",&asteroid.x_cartesien);
 		fprintf(stderr, "\t y0 = ");
 		scanf("%lf",&asteroid.y_cartesien);
@@ -569,7 +568,13 @@ int main(int argc, char * argv[]) {
 		}
 		fprintf(stderr," Interval de temps entre deux points [jour]: \n (Indication : c'est mieux de le faire avec un interval entre 0.1 et 2 jours)\n");
 		scanf("%lf", &interval_time);
-		
+		fprintf(stderr," Temps de simulation [jour]: \n (Indication : 10 000 jours pour un interval de temps de 1 jour est bien pour ne pas avoir une simulation trop longue) \n (Culture : un ans sur Neptune, qui est la planete la plus eloignee du soleil, dure 60 189 jours)\n");
+		int temps;
+		scanf("%d", &temps);
+		NombrePointsMax = temps / interval_time;
+		fprintf(stderr," Vitesse de simulation :\n (Indication : vitesse x1, vitesse x2, vitesse x3, vitesse x4)\n\t\t\t Bonne simulation! \n\t vitesse x");
+		int vitesse_sim;
+		scanf("%d", &vitesse_sim);
 	}
 	
 	int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);

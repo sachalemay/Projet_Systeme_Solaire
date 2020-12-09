@@ -205,7 +205,7 @@ void conditionCollision (double timeInterval, struct donneePlanet * planets, int
 							double dist_aspl_pl = sqrt( pow(x_found - x_asteroid_t,2) + pow(y_found - y_asteroid_t,2));
 							
 							double sum_radius = meteor->radius + planets[i].radius;
-							if ( dist_aspl_as < sum_radius + 500000 || dist_aspl_pl < sum_radius + 500000){
+							if ( dist_aspl_as < sum_radius + 50000 || dist_aspl_pl < sum_radius + 50000){
 								//printf("1\n");
 								meteor->collision = 1;
 								meteor->collisionWith = planets[i].planetName;
@@ -485,7 +485,7 @@ int main(int argc, char * argv[]) {
 	srand(time(NULL));
 	
 	double gravitationalConstant = 6.67408*pow(10,-20);
-	double interval_time = 1;  //en jours
+	double interval_time = 0.1;  //en jours
 	int NombrePointsMax = 10000;
 
 	struct donneePlanet planets[15]; // j'ai mit à 15
@@ -501,7 +501,7 @@ int main(int argc, char * argv[]) {
 		planets[i].dephasage = 0;
 	}
 	
-	planets[8].dephasage = -2*M_PI*94/planets[8].fullOrbitTime;
+	planets[3].dephasage = 23000*2*M_PI/planets[3].fullOrbitTime;
 	
 	
 	// L'astéroide de référence suivant nous permet de vérifier la trajectoire de notre ast. modélisé en comparant les deux trajectoires 
@@ -517,45 +517,45 @@ int main(int argc, char * argv[]) {
 	struct meteorite asteroid;
 	initialize_tables(lenght, planets, &asteroid, &Asteroide_reference, NombrePointsMax);
 
-	asteroid.masse = 5 * pow(10,19);  
+	asteroid.masse = 5 * pow(10,17);  
 	asteroid.radius = 140; 
-	asteroid.initialspeed_x = 9; 
-	asteroid.initialspeed_y = -7; 
-	asteroid.x_cartesien = -8.2*pow(10,7);
-	asteroid.y_cartesien = -4*pow(10,8);
+	asteroid.initialspeed_x = -4; 
+	asteroid.initialspeed_y = 5; 
+	asteroid.x_cartesien = -2*pow(10,9);
+	asteroid.y_cartesien = 4*pow(10,8);
 
 	
 	int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 
 
-	//~ double dis_min = 100000000000000; 
-	//~ int t_intersec_de_ast = 0; // asteroide
-	//~ int t_intersec_de_pln = 0; // planete
+	double dis_min = 100000000000000; 
+	int t_intersec_de_ast = 0; // asteroide
+	int t_intersec_de_pln = 0; // planete
 	
 	
-	//~ for (int f = 3100; f<3700; f++) {
-		//~ for (int s = 3100; s<3700; s++) {
+	for (int f = 0; f<10000; f++) {
+		for (int s = 3100; s<3700; s++) {
 			
-			//~ double distance_x = planets[8].tableau_coordonnees_X[f] - asteroid.tableau_coordonnees_X[s];
-			//~ double distance_y = planets[8].tableau_coordonnees_Y[f] - asteroid.tableau_coordonnees_Y[s];
+			double distance_x = planets[3].tableau_coordonnees_X[f] - asteroid.tableau_coordonnees_X[s];
+			double distance_y = planets[3].tableau_coordonnees_Y[f] - asteroid.tableau_coordonnees_Y[s];
 			
-			//~ double totem = sqrt(pow(distance_x,2) + pow(distance_y,2));
-			//~ if (totem < dis_min) {
-				//~ dis_min = totem;
-				//~ t_intersec_de_ast = s; 
-				//~ t_intersec_de_pln = f; 
-			//~ }
-		//~ }
-	//~ }
+			double totem = sqrt(pow(distance_x,2) + pow(distance_y,2));
+			if (totem < dis_min) {
+				dis_min = totem;
+				t_intersec_de_ast = s; 
+				t_intersec_de_pln = f; 
+			}
+		}
+	}
 	
-	//~ double diff_x =  planets[8].tableau_coordonnees_X[t_intersec_de_pln] - asteroid.tableau_coordonnees_X[t_intersec_de_ast]; 
-	//~ double diff_y =  planets[8].tableau_coordonnees_Y[t_intersec_de_pln] - asteroid.tableau_coordonnees_Y[t_intersec_de_ast]; 
+	double diff_x =  planets[3].tableau_coordonnees_X[t_intersec_de_pln] - asteroid.tableau_coordonnees_X[t_intersec_de_ast]; 
+	double diff_y =  planets[3].tableau_coordonnees_Y[t_intersec_de_pln] - asteroid.tableau_coordonnees_Y[t_intersec_de_ast]; 
 
-	//~ printf(" diff x = %f  diff y = %f" , diff_x, diff_y);
-	//~ printf(" ast t = %d  pln t = %d" , t_intersec_de_ast, t_intersec_de_pln);
+	printf(" diff x = %f  diff y = %f" , diff_x, diff_y);
+	printf(" ast t = %d  pln t = %d" , t_intersec_de_ast, t_intersec_de_pln);
 
 	
-	PrintCoordinates(planets,&Asteroide_reference,&asteroid,lenght, NombrePointsWhile, interval_time); // boucle while
+	//~ PrintCoordinates(planets,&Asteroide_reference,&asteroid,lenght, NombrePointsWhile, interval_time); // boucle while
 	
 	free_tables(lenght, planets, &asteroid, &Asteroide_reference, NombrePointsMax);
 
