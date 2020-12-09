@@ -507,29 +507,38 @@ int main(int argc, char * argv[]) {
 	initialize_tables(lenght, planets, &asteroid, &Asteroide_reference, NombrePointsMax);
 	
 	int Mode;
-    fprintf(stderr, " Rentrez un scenario: \n\t 1: Modele de collision \n\t 2: Collision avec la ceinture de kuiper (limite exterieure) \n\t 3: Preuve du modele de force en suivant une trajectoire predefini \n\t 4: Mode libre (choix de toutes les donnees) \n");
+    fprintf(stderr, " Rentrez un scenario: \n\t 1: Modele de collision \n\t 2: Collision avec la ceinture de kuiper (limite exterieure) \n\t 3: Modele de trajectoire predefini \n\t 4: Mode libre (choix de toutes les donnees) \n");
     scanf("%d", &Mode);
     
     if (Mode == 1){			//collision
-		int * poubelle;
+		int n_collision;
 		fprintf(stderr, " Ce scenario permet de montrer que notre systeme de collision fontionne en prenant un exemple que nous avons trouver \n Toutes les donnees sont deja rentrer pour montrer une collision en particulier \n A vous d'en trouver d'autre sur le mode libre ;)");
-		fprintf(stderr, " \n(tapez un nombre pour passer a la simulation)");
-		scanf("%d",poubelle);
+		fprintf(stderr, "\n Choisissez une collision parmis: \n\t 1:Soleil \n");
+		scanf("%d", &n_collision);
 		
+		if (n_collision == 1){
+			asteroid.x_cartesien = -100000000;
+			asteroid.y_cartesien = 120000000;
+			asteroid.initialspeed_x = 0;
+			asteroid.initialspeed_y = 0;
+			asteroid.radius = 200;
+			asteroid.masse = 2 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+			interval_time = 0.1;
+			
+		}
 	}
 	
 	else if (Mode == 2){		//kuiper
 		asteroid.x_cartesien = 4400000000;
 		asteroid.y_cartesien = 0;
 		fprintf(stderr, " Vous devez choisir une valeur positive pour la vitesse initial de l'asteroide; \n Si vous entrez v0 > 6km/s l'asteroide va souvent sortir du systeme solaire \n Si vous entrez v0 < 2km/s l'asteroide va souvent collisionner dans la ceinture de kuiper\n On a une bonne repartition des cas pour v0 entre 2 et 3Km/s\n v0 : ");
-		scanf("%lf", &asteroid.vitesse_tot);
+		scanf("%lf", &asteroid.initialspeed_x);
 		fprintf(stderr, " Taille de l'asteroide [km]: \n (Indication : Les rayons des asteroides connu vari entre 0 et 1000km) \n (Culture : l'asteroide Chicxulub qui a cause l'extinction des dinosaures n'avais un rayon que de 12km) \n\t rayon = ");
 		scanf("%lf",&asteroid.radius);
 		asteroid.masse = 2 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
 		fprintf(stderr," Interval de temps entre deux points [jour]: \n (Indication : c'est mieux de le faire avec un interval entre 0.1 et 2 jours)\n");
 		scanf("%lf", &interval_time);
 		
-		int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	}
 	
 	else if (Mode == 3){		//ellipse
@@ -538,7 +547,6 @@ int main(int argc, char * argv[]) {
 		scanf("%d",poubelle);
 		
 		comparaison_vraie_asteroide(interval_time, gravitationalConstant, &asteroid, &Asteroide_reference, planets);
-		int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	}
 	
 	else if (Mode == 4){		//manuel
@@ -553,7 +561,19 @@ int main(int argc, char * argv[]) {
 		scanf("%lf",&asteroid.initialspeed_y);
 		fprintf(stderr, " Taille de l'asteroide [km]: \n (Indication : Les rayons des asteroides connu vari entre 0 et 1000km) \n (Culture : l'asteroide Chicxulub qui a cause l'extinction des dinosaures n'avais un rayon que de 12km) \n\t rayon = ");
 		scanf("%lf",&asteroid.radius);
-		asteroid.masse = 2 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+		fprintf(stderr, " Type de l'asteroid (Densite) [g.cm^-3]:\n (Indication : Dans le systeme solaire il y a 75%% d'asteroide de type C, 17%% de type S et 8%% de type M)\n (Culture : Les inuites utilisaient les debris d'asteroides de type M (composé de fer) pour faire leurs outils)\n");
+		fprintf(stderr, "\t 1: type C (carbonnee), 2 g.cm^-3\n\t 2: type S (silicatee), 2.5 g.cm^-3\n\t 3: type M (metalique), 8 g.cm^-3\n");
+		int type;
+		scanf("%d", &type);
+		if (type == 1){
+			asteroid.masse = 2 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+		}
+		else if (type == 2){
+			asteroid.masse = 2.5 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+		}
+		else if (type ==3){
+			asteroid.masse = 8 * pow(10,12) * 4/3 * M_PI * pow(asteroid.radius,3);
+		}
 		fprintf(stderr, " Position initiale des planetes : \n\t 0: position aleatoire sur leurs ellipses \n\t 1: position allignee sur l'axe y=0\n");
 		int angle;
 		scanf("%d", &angle);
@@ -563,11 +583,10 @@ int main(int argc, char * argv[]) {
 		fprintf(stderr," Interval de temps entre deux points [jour]: \n (Indication : c'est mieux de le faire avec un interval entre 0.1 et 2 jours)\n");
 		scanf("%lf", &interval_time);
 		
-		int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	}
 	
 	
-	
+	int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	
 	
 	
@@ -603,7 +622,7 @@ int main(int argc, char * argv[]) {
 	struct meteorite meteor;
 	comparaison_vraie_asteroide(interval_time,gravitationalConstant, &meteor,&Asteroide_reference, planets);
 	initialize_tables(lenght, planets, &meteor, &Asteroide_reference, NombrePointsMax);	
-	int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&meteor, &Asteroide_reference);
+	//int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&meteor, &Asteroide_reference);
 	
 	PrintCoordinates(planets,&Asteroide_reference,&meteor,lenght, NombrePointsWhile, interval_time); // boucle while
 	free_tables(lenght, planets, &meteor, &Asteroide_reference, NombrePointsMax);
