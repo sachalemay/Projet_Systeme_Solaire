@@ -30,7 +30,7 @@ class Celestar_object():
     #y = center[1]+self.radiusToSun*math.sin(self.speedFactor*self.angle)
     global t
     x = center[0] + (self.xlist[t])*WIDTH/x_max
-    y = center[1] + (self.ylist[t])*HEIGHT/y_max
+    y = center[1] - (self.ylist[t])*HEIGHT/y_max
     return [x,y]
 
   def updateCoordinates(self):
@@ -41,12 +41,26 @@ class Celestar_object():
     
   def resize(self, size_mult):
     self.planetRadius = self.planetRadius * size_mult
-        
+
+  def updateSun(self):
+    global t
+    [xn1,yn1,xn2,yn2] = center[0]-self.planetRadius,center[1]-self.planetRadius,center[0]+self.planetRadius,center[1]+self.planetRadius
+    canvas.coords(self.thisPlanet, xn1,yn1,xn2,yn2)
+    
+  def clignoter(self): 
+    global t 
+    if t%5 == 0: 
+        canvas.itemconfig(self.thisPlanet, fill='white')
+    elif t%8 == 0: 
+        canvas.itemconfig(self.thisPlanet, fill='red')
+
+    
 def resize_global(size_mult): 
     global object_list
     for object in object_list:
         if object.name != "asteroide": 
             object.resize(size_mult)
+    sun.resize(size_mult)
     
 def change_bornes(t): 
     global x_max
@@ -95,7 +109,7 @@ T = Text(tk, height=2, width=30)
 montexte = StringVar()
 label = Label(tk, textvariable = montexte)
 label.pack()
-tk.title("Solar System")
+tk.title("Your Solar System")
 canvas.pack()
 
 
@@ -141,21 +155,21 @@ def KuiperBelt(asteroid_number):
 #KuiperBelt(800)
 
 
-ceres = Celestar_object("ceres", s[0], s[1], 4, "#7A7373")
+ceres = Celestar_object("ceres", s[0], s[1], 1, "#7A7373")
 eris = Celestar_object("eris", s[2], s[3], 4, "#898989")
-uranus = Celestar_object("uranus", s[4], s[5], 10, "#4FD0E7")
+uranus = Celestar_object("uranus", s[4], s[5], 25, "#4FD0E7")
 pluton = Celestar_object("pluton", s[6], s[7], 5, "#9ca6b7")
-neptune = Celestar_object("neptune",s[8],s[9],10, "#73ACAC")
-haumea = Celestar_object("haumea",s[10],s[11],4, "#F5F5F5")
-makemake = Celestar_object("makemake",s[12],s[13],4, "#D07649")
-jupiter = Celestar_object("jupiter",s[14], s[15], 15, "#DE654B")
+neptune = Celestar_object("neptune",s[8],s[9],25, "#73ACAC")
+haumea = Celestar_object("haumea",s[10],s[11],20, "#F5F5F5")
+makemake = Celestar_object("makemake",s[12],s[13],20, "#D07649")
+jupiter = Celestar_object("jupiter",s[14], s[15], 15, "yellow") #DE654B
 mars = Celestar_object("mars",s[16], s[17], 7.5, "red") #FF2D00
 mercury = Celestar_object("mercury", s[18],s[19],5, "#B99289")
 saturne = Celestar_object("saturne",s[20], s[21], 15, "#C0B89E")
-sun     = Celestar_object("sun", [0],[0],30, "#FCD440")
+sun     = Celestar_object("sun", [0],[0],35, "#FCD440")
 earth = Celestar_object("earth",s[24], s[25], 10.4, "#0859AD")
 venus = Celestar_object("venus",s[26],s[27],10.4, "#FF5733")
-asteroide = Celestar_object("asteroide",s[28], s[29], 2, "white")
+asteroide = Celestar_object("asteroide",s[28], s[29], 1, "white")
 asteroide_reference = Celestar_object("asteroide_ref",s[30], s[31], 4, "purple")
 interval_time = s[32][0]
 NbPoints = int(s[33][0])
@@ -171,6 +185,8 @@ object_list_name.append(["Kuiper/ asteroid belt", "left solar system"])
 
 print(NbPoints)
 
+
+    
 while t<NbPoints-2:
   t += 1
   present_time = t * interval_time
@@ -195,7 +211,10 @@ while t<NbPoints-2:
   venus.updateCoordinates()
   jupiter.updateCoordinates()
   asteroide.updateCoordinates()
+  asteroide.clignoter()
   asteroide_reference.updateCoordinates()
+  
+  sun.updateSun()
   
   #time.sleep(0.009)
   time.sleep(0.000000000001)
