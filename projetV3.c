@@ -256,9 +256,9 @@ double echelle_kuiper (double proba_list [], struct meteorite * asteroid, struct
 	return proba;
 }
 
-void proba_collision (double proba, struct meteorite * asteroid){
+void proba_collision (double proba, struct meteorite * asteroid, double time_interval){
 	//fonction permettant de créer l'alétoire de la collision grâce a une proba donnée
-	int number = floor(1/proba);
+	int number = floor(1/(proba*time_interval));
 	double randomDomaine = RAND_MAX + 1.0;
 	rand();
 	int a = (int) rand()/randomDomaine * number; 
@@ -275,18 +275,17 @@ int repetitionDeFonctions (int NombrePointsMax, double timeInterval, double grav
 	double time = timeInterval;
 	int i = 0; 
 	
-	//~ //Parametrisation de la ceinture de kuiper
-	//~ char * fichier1 = "image_kuiper.jpg";
-	//~ char * fichier2 = "echelle_kuiper.jpg";
-	//~ struct Image image;
-	//~ image_read(&image, fichier1);
-	//~ struct Image echelle;
-	//~ image_read(&echelle, fichier2);
-	//~ double debut_kuiper = 4500000000;
-	//~ double fin_kuiper = 7500000000;
-	//~ double proba_list [] = { pow(10,-2) , pow(10,-3), pow(10,-4), pow(10,-5), pow(10,-6), pow(10,-7), pow(10,-8)};
+	//Parametrisation de la ceinture de kuiper
+	char * fichier1 = "image_kuiper.jpg";
+	char * fichier2 = "echelle_kuiper.jpg";
+	struct Image image;
+	image_read(&image, fichier1);
+	struct Image echelle;
+	image_read(&echelle, fichier2);
+	double debut_kuiper = 4500000000;
+	double fin_kuiper = 7500000000;
+	double proba_list [] = { pow(10,-2) , pow(10,-3), pow(10,-4), pow(10,-5), pow(10,-6), pow(10,-7), pow(10,-8)};
 	
-	//double proba_list [] = { pow(10,-2) , pow(10,-3), pow(10,-4), pow(10,-5), pow(10,-6), pow(10,-7), pow(10,-8)};
 		
 	while ( 0 == meteor->collision && i< NombrePointsMax){
 		GlobalPlanetAvancement(time, planets, lenght);
@@ -298,33 +297,33 @@ int repetitionDeFonctions (int NombrePointsMax, double timeInterval, double grav
 		enregistre_coordonnees(i, lenght, planets, meteor, Asteroide_reference);
 		
 		//collision avec ceinture de kuiper
-		//~ if ( meteor->distanceSoleil > debut_kuiper && meteor->distanceSoleil < fin_kuiper ){
-			//~ if ( meteor->vitesse_tot < 10){
-				//~ int pixel_number = graduation_kuiper (debut_kuiper, fin_kuiper , meteor, &image); 
-				//~ double proba = echelle_kuiper( proba_list, meteor, &echelle, &image.pixels[pixel_number] );
-				//~ proba_collision (proba, meteor);
-			//~ }
-			//~ else {
-				//~ double proba = proba_list[6];
-				//~ proba_collision (proba, meteor);
-			//~ }
-		//~ }
-		//~ else if ( meteor->distanceSoleil > fin_kuiper){
-			//~ meteor->collision = 1;
-			//~ meteor->collisionWith = "L'astéroide à quitté le système solaire";
-			//~ meteor->number_of_pl = 16;
-		//~ }
+		if ( meteor->distanceSoleil > debut_kuiper && meteor->distanceSoleil < fin_kuiper ){
+			if ( meteor->vitesse_tot < 10){
+				int pixel_number = graduation_kuiper (debut_kuiper, fin_kuiper , meteor, &image); 
+				double proba = echelle_kuiper( proba_list, meteor, &echelle, &image.pixels[pixel_number] );
+				proba_collision (proba, meteor,timeInterval);
+			}
+			else {
+				double proba = proba_list[6];
+				proba_collision (proba, meteor,timeInterval);
+			}
+		}
+		else if ( meteor->distanceSoleil > fin_kuiper){
+			meteor->collision = 1;
+			meteor->collisionWith = "L'astéroide à quitté le système solaire";
+			meteor->number_of_pl = 16;
+		}
 		
 		
-		//printf("Meteor Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
+		printf("Meteor Position: (%f , %f)\n", meteor->x_cartesien,meteor->y_cartesien);
 		//printf("RefAsteroidPosi: (%f , %f)\n \n",Asteroide_reference->x_cartesien, Asteroide_reference->y_cartesien);
 		//printf("New Speed: (%f,%f)\n\n",meteor->initialspeed_x,meteor->initialspeed_y);
 		time+=timeInterval;
 		i+=1; 
 	}
 	//Libération des fichiers image
-	//~ image_free(&echelle);
-	//~ image_free(&image);
+	image_free(&echelle);
+	image_free(&image);
 	return i; 
 }
 int lireLigne(char * ligne, struct donneePlanet * planets) {
@@ -457,7 +456,7 @@ int main(int argc, char * argv[]) {
 	
 	double gravitationalConstant = 6.67408*pow(10,-20);
 	double interval_time = 1;  //en jours
-	int NombrePointsMax = 10000;
+	int NombrePointsMax = 100000;
 
 	struct donneePlanet planets[15]; // j'ai mit à 15
 	int lenght = lireFichier("bodies-3.csv", planets, 15); // 15 !!!!! 
@@ -511,7 +510,7 @@ int main(int argc, char * argv[]) {
 	else if (Mode == 2){		//kuiper
 		asteroid.x_cartesien = 4400000000;
 		asteroid.y_cartesien = 0;
-		fprintf(stderr, " Vous devez choisir une valeur positive pour la vitesse initial de l'asteroide; \n Si vous entrez v0 > 6km/s l'asteroide va souvent sortir du systeme solaire \n Si vous entrez v0 < 2km/s l'asteroide va souvent collisionner dans la ceinture de kuiper\n On a une bonne repartition des cas pour v0 entre 2 et 3Km/s\n v0 : ");
+		fprintf(stderr, " Vous devez choisir une valeur positive pour la vitesse initial de l'asteroide; \n Si vous entrez v0 > 10km/s l'asteroide va souvent sortir du systeme solaire \n Si vous entrez v0 < 5km/s l'asteroide va souvent collisionner dans la ceinture de kuiper\n On a une bonne repartition des cas pour v0 entre 5 et 7 km/s\n v0 : ");
 		scanf("%lf", &asteroid.initialspeed_x);
 		fprintf(stderr, " Taille de l'asteroide [km]: \n (Indication : Les rayons des asteroides connu vari entre 0 et 1000km) \n (Culture : l'asteroide Chicxulub qui a cause l'extinction des dinosaures n'avais un rayon que de 12km) \n\t rayon = ");
 		scanf("%lf",&asteroid.radius);
@@ -577,6 +576,8 @@ int main(int argc, char * argv[]) {
 		scanf("%d", &vitesse_sim);
 	}
 	
+	asteroid.collisionWith = "rien";
+	
 	int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
 	
 	
@@ -600,7 +601,7 @@ int main(int argc, char * argv[]) {
 	
 	//PrintCoordinates(planets,&Asteroide_reference,&asteroid,lenght, NombrePointsWhile, interval_time); // boucle while
 	free_tables(lenght, planets, &asteroid, &Asteroide_reference, NombrePointsMax);
-
+	printf("coco : %s",asteroid.collisionWith);
 
 	return 0; 
 }

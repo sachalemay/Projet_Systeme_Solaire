@@ -501,7 +501,7 @@ int main(int argc, char * argv[]) {
 		planets[i].dephasage = 0;
 	}
 	
-	planets[3].dephasage = 23000*2*M_PI/planets[3].fullOrbitTime;
+	planets[3].dephasage =2*M_PI/planets[10].fullOrbitTime/0.1;
 	
 	
 	// L'astéroide de référence suivant nous permet de vérifier la trajectoire de notre ast. modélisé en comparant les deux trajectoires 
@@ -521,8 +521,8 @@ int main(int argc, char * argv[]) {
 	asteroid.radius = 140; 
 	asteroid.initialspeed_x = -4; 
 	asteroid.initialspeed_y = 5; 
-	asteroid.x_cartesien = -2*pow(10,9);
-	asteroid.y_cartesien = 4*pow(10,8);
+	asteroid.x_cartesien = -2*pow(10,6);
+	asteroid.y_cartesien = 4*pow(10,7);
 
 	
 	int NombrePointsWhile = repetitionDeFonctions(NombrePointsMax,interval_time,gravitationalConstant,planets,lenght,&asteroid, &Asteroide_reference);
@@ -533,7 +533,7 @@ int main(int argc, char * argv[]) {
 	int t_intersec_de_pln = 0; // planete
 	
 	
-	for (int f = 0; f<10000; f++) {
+	for (int f = 0; f<4000; f++) {
 		for (int s = 3100; s<3700; s++) {
 			
 			double distance_x = planets[3].tableau_coordonnees_X[f] - asteroid.tableau_coordonnees_X[s];
