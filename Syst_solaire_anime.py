@@ -113,22 +113,24 @@ tk.title("Your Solar System")
 canvas.pack()
 
 
-
 def pop_up(collision_with_planet): 
     global pop 
     pop =Toplevel(tk)
     pop.title("End of simulation")
     pop.geometry("1200x60")
     pop.config(bg = "black")
-    if int(collision_with_planet) != 15 and int(collision_with_planet) != 16: 
+    if int(collision_with_planet) != 15 and int(collision_with_planet) != 16 and int(collision_with_planet) != 0: 
         txt = "Asteroid collided with %s" % object_list_name[int(collision_with_planet)-1]
     elif int(collision_with_planet) == 15:
-        txt = "Asteroid collided with other asteroid from the Kuiper belt"
-    else: 
+        txt = "Asteroid collided with another asteroid in Kuiper belt"
+    elif int(collision_with_planet) == 16: 
        txt = "Asteroid left the solar system" 
+    else: 
+        txt = "Limite de temps atteinte !"
+        
     pop_label = Label(pop, text = txt, bg = "black", fg = "red", font = ("helvetica", 35))
     pop_label.pack(pady= 15, padx= 18)
-
+    
 
 def stars(numberOfStars):
   starLocations = []
@@ -145,17 +147,18 @@ def KuiperBelt(asteroid_number):
   astLocations = []
   astRadius = 0.5
   for i in range(asteroid_number):
-    rand_distance = randint(10000000,15000000)
+    rand_distance = randint(45*10**8,75*10**8)
     rand_teta = randint(0,1) * 2* math.pi
-    astLocations.append([center[0]+ rand_distance * math.cos(rand_teta)* WIDTH/x_max,center[1] + rand_distance* math.sin(rand_teta) * HEIGHT/y_max])
+    astLocations.append([center[0]+ rand_distance * math.cos(rand_teta)* WIDTH/x_max,center[1] - rand_distance* math.sin(rand_teta) * HEIGHT/y_max])
+    
   for i in range(asteroid_number):
     drawAst = canvas.create_rectangle(astLocations[i][0]-astRadius,astLocations[i][1]-astRadius,
-      astLocations[i][0]+astRadius,astLocations[i][1]+astRadius,fill = "brown", outline = "")
-
+      astLocations[i][0]+astRadius,astLocations[i][1]+astRadius,fill = "red", outline = "")
+    
 #KuiperBelt(800)
 
 
-ceres = Celestar_object("ceres", s[0], s[1], 1, "#7A7373")
+ceres = Celestar_object("ceres", s[0], s[1], 2, "#7A7373")
 eris = Celestar_object("eris", s[2], s[3], 4, "#898989")
 uranus = Celestar_object("uranus", s[4], s[5], 25, "#4FD0E7")
 pluton = Celestar_object("pluton", s[6], s[7], 5, "#9ca6b7")
@@ -169,30 +172,28 @@ saturne = Celestar_object("saturne",s[20], s[21], 15, "#C0B89E")
 sun     = Celestar_object("sun", [0],[0],35, "#FCD440")
 earth = Celestar_object("earth",s[24], s[25], 10.4, "#0859AD")
 venus = Celestar_object("venus",s[26],s[27],10.4, "#FF5733")
-asteroide = Celestar_object("asteroide",s[28], s[29], 1, "white")
+asteroide = Celestar_object("asteroide",s[28], s[29], 2, "white")
 asteroide_reference = Celestar_object("asteroide_ref",s[30], s[31], 4, "purple")
+
 interval_time = s[32][0]
 NbPoints = int(s[33][0])
-
-
-
 tableau_distance_soleil = s[34]
-collision_with_planet = s[35]
+tableau_vitesses = s[35]
+collision_with_planet = s[36][0]
+vitesse_sim = s[37][0]
 
 object_list = [ceres,eris, uranus, pluton, neptune, haumea, makemake, jupiter, mars, mercury, saturne, earth, venus, asteroide, asteroide_reference ] # sans soleil 
 object_list_name = [p.name for p in object_list] # sans soleil 
 object_list_name.append(["Kuiper/ asteroid belt", "left solar system"])
-
-print(NbPoints)
-
-
+object_list_name = object_list_name[:11] + ["sun"] + object_list_name[11:]
     
 while t<NbPoints-2:
   t += 1
   present_time = t * interval_time
   present_time_txt = "%.0f" % present_time
-  dist_sun = "%10.4E" % s[34][t]
-  txt = "Time = " + present_time_txt + " days" + "                      Asteroid's distance from Sun  = " +  dist_sun + " kilometers..."
+  dist_sun = "%10.4E" % tableau_distance_soleil[t]
+  speed = "%8.2f" % tableau_vitesses[t]
+  txt = "Time = " + present_time_txt + " days" + "                      Asteroid's distance from Sun  = " +  dist_sun + " kilometers..." + "                   Asteroid Speed = " + speed + "km/s" 
   montexte.set(txt)
   change_bornes(t)
   
@@ -218,10 +219,10 @@ while t<NbPoints-2:
   
   #time.sleep(0.009)
   time.sleep(0.000000000001)
-  tk.update()
+  if t%vitesse_sim ==0: 
+      tk.update()
 
-
-if collision_with_planet != 0 : 
-    pop_up(collision_with_planet)
+pop_up(collision_with_planet)
 
 canvas.mainloop()
+print("Sortie du système solaire...")
