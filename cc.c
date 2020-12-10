@@ -626,4 +626,5 @@ int main(int argc, char * argv[]) {
 	free_tables(lenght, planets, &asteroid, &Asteroide_reference, NombrePointsMax);
 
 	return 0; 
+	
 }
