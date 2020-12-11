@@ -181,7 +181,7 @@ void conditionCollision (double timeInterval, struct donneePlanet * planets, int
 							double dist_aspl_pl = sqrt( pow(x_found - x_asteroid_t,2) + pow(y_found - y_asteroid_t,2));
 							
 							double sum_radius = meteor->radius + planets[i].radius;
-							if ( dist_aspl_as < sum_radius + 470000 || dist_aspl_pl < sum_radius + 470000){
+							if ( dist_aspl_as < sum_radius + 50000 || dist_aspl_pl < sum_radius + 50000){
 								meteor->collision = 1;
 								meteor->collisionWith = planets[i].planetName;
 								meteor->number_of_pl = i;	
@@ -497,7 +497,7 @@ int main(int argc, char * argv[]) {
 		else if (n_collision == 2){
 			interval_time = 0.1;
 			NombrePointsMax = 10000;
-			planets[1].dephasage = 2*M_PI * 35.5 / planets[1].fullOrbitTime;
+			planets[1].dephasage = 2*M_PI * 35.5 / 1868.48;
 			asteroid.masse = 8 * pow(10,10); 
 			asteroid.radius = 20; 
 			asteroid.initialspeed_x = 30; 
